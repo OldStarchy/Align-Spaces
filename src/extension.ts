@@ -11,18 +11,31 @@ export function activate(context: vscode.ExtensionContext) {
 		'Congratulations, your extension "align-spaces" is now active!'
 	);
 
-	const eventHandler = (event: vscode.TextDocumentChangeEvent) => {
+	const eventHandler = (
+		event: vscode.TextDocumentChangeEvent | vscode.TextDocument
+	) => {
+		const doc = 'document' in event ? event.document : event;
+
 		const openEditor = vscode.window.visibleTextEditors.filter(
-			(editor) => editor.document.uri === event.document.uri
+			(editor) => editor.document.uri === doc.uri
 		)[0];
 
 		try {
-			decorate(openEditor);
+			if (openEditor) decorate(openEditor);
 		} catch (e: unknown) {
 			console.error(e);
 		}
 	};
 	vscode.workspace.onDidChangeTextDocument(eventHandler);
+	vscode.workspace.onDidOpenTextDocument(eventHandler);
+
+	vscode.window.visibleTextEditors.forEach((editor) => {
+		try {
+			decorate(editor);
+		} catch (e: unknown) {
+			console.error(e);
+		}
+	});
 }
 
 const decorationType = new Array(30).fill(0).map((_, i) =>
