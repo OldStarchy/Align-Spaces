@@ -1,7 +1,11 @@
 {
 	"name": "align-spaces",
 	"displayName": "Align Spaces",
+	"publisher": "OldStarchy",
 	"description": "",
+	"repository": {
+		"url": "https://github.com/aNickzz/Align-Spaces"
+	},
 	"version": "0.0.1",
 	"engines": {
 		"vscode": "^1.53.0"
