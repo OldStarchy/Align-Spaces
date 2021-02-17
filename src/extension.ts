@@ -11,21 +11,6 @@ export function activate(context: vscode.ExtensionContext) {
 		'Congratulations, your extension "align-spaces" is now active!'
 	);
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand(
-		'align-spaces.helloWorld',
-		() => {
-			// The code you place here will be executed every time your command is executed
-
-			// Display a message box to the user
-			vscode.window.showInformationMessage(
-				'Hello World from Align Spaces!'
-			);
-		}
-	);
-
 	const eventHandler = (event: vscode.TextDocumentChangeEvent) => {
 		const openEditor = vscode.window.visibleTextEditors.filter(
 			(editor) => editor.document.uri === event.document.uri
@@ -38,8 +23,6 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	};
 	vscode.workspace.onDidChangeTextDocument(eventHandler);
-
-	context.subscriptions.push(disposable);
 }
 
 const decorationType = new Array(30).fill(0).map((_, i) =>
