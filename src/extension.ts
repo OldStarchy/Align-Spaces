@@ -48,6 +48,7 @@ const decorationType = new Array(30).fill(0).map((_, i) =>
 interface AlignedGroup {
 	lineStart: number;
 	lines: string[];
+	indent: string;
 }
 
 const lineMatch = /.+?([-+*/=]={0,2})/g;
@@ -65,7 +66,14 @@ function decorate(editor: vscode.TextEditor) {
 		let match = sourceCodeArr[line].match(lineMatch);
 
 		if (match !== null) {
-			currentGroup ??= { lineStart: line, lines: [] };
+			const indent = /^\s*/.exec(sourceCodeArr[line])![0];
+			if (currentGroup) {
+				if (currentGroup.indent !== indent) {
+					groups.push(currentGroup);
+					currentGroup = null;
+				}
+			}
+			currentGroup ??= { lineStart: line, lines: [], indent };
 
 			currentGroup.lines.push(sourceCodeArr[line]);
 		} else {
