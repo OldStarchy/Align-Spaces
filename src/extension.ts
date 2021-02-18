@@ -51,7 +51,8 @@ interface AlignedGroup {
 	indent: string;
 }
 
-const lineMatch = /.+?([-+*/=]={0,2})/g;
+const lineMatch = /.+?(!==|===|!=|==|\+=|-=|\*=|\/=|\?\?=|^=|=(?!>)|\+|-(?!>)|[^/]\*|\/|,)/g;
+
 function decorate(editor: vscode.TextEditor) {
 	decorationType.forEach((decorator) => editor.setDecorations(decorator, []));
 
@@ -98,11 +99,10 @@ function decorate(editor: vscode.TextEditor) {
 		const colWidths: number[] = [];
 
 		group.lines.forEach((line) => {
-			const parts = line.match(lineMatch);
-			if (parts === null) return;
+			let match: null | RegExpExecArray = null;
 
-			for (let i = 0; i < parts.length; i++) {
-				const width = parts[i].length;
+			for (let i = 0; (match = lineMatch.exec(line)); i++) {
+				const width = match[0].length;
 
 				if (i > colWidths.length - 1) colWidths.push(width);
 				else if (colWidths[i] < width) colWidths[i] = width;
@@ -111,12 +111,13 @@ function decorate(editor: vscode.TextEditor) {
 
 		group.lines.forEach((line, index) => {
 			let characterOffset = 0;
-			const parts = line.match(lineMatch);
-			if (parts === null) return;
+			let match: null | RegExpExecArray = null;
 
-			for (let i = 0; i < parts.length; i++) {
-				const width = parts[i].length;
+			for (let i = 0; (match = lineMatch.exec(line)); i++) {
+				const width = match[0].length;
 				const offset = colWidths[i] - width;
+
+				const tokenWidth = match[1].length;
 
 				characterOffset += width;
 				if (offset > 0) {
@@ -124,9 +125,9 @@ function decorate(editor: vscode.TextEditor) {
 					decorationsArray[offset].push(
 						new vscode.Range(
 							group.lineStart + index,
-							characterOffset - 2,
+							characterOffset - tokenWidth - 1,
 							group.lineStart + index,
-							characterOffset - 1
+							characterOffset - tokenWidth
 						)
 					);
 				}
