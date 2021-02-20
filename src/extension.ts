@@ -49,6 +49,7 @@ const operatorGroups = {
 	assignment: ['=', '+=', '-=', '*=', '/=', '??=', '^=', '|=', ':='],
 	binary: ['+', '-', '*', '/', '??', '**', '..'],
 	comparison: ['===', '!==', '==', '!=', '>=', '<='],
+	comma: [','],
 	index: ['.', '->', ':', '=>'],
 };
 
@@ -65,6 +66,7 @@ const operatorsSorted = [
 	...operatorGroups.assignment,
 	...operatorGroups.binary,
 	...operatorGroups.comparison,
+	...operatorGroups.comma,
 ].sort((a, b) => b.length - a.length); //naive regex escape
 
 const getLineMatch = () =>
