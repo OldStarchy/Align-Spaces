@@ -6,32 +6,85 @@ Aligns certain characters without inserting any characters to align them.
 
 ## Features
 
-```text
-foo = bar + baz;
-longerfoo = b - baz;
+```javascript
+// Aligns operators:
+foo = bar;
+foobar = baz;
 
-this = this
-anotherExample = anotherExample
-thing = thing
-example = example
+foo = foo + bar;
+foobar = foobar - baz;
 
-a = x + sin(x) + 0.2 * 12000
-b = sin(y) + y * 6
+// Knows the difference between assignment, 'binary', and comparison:
+foo = bar;
+foobar = baz;
+if (foobar === bar) {
+	bar = fizzbuzz;
+}
+
+// Groups object assignments:
+foo = new Foo();
+foo.foo = bar;
+foo.foobar = baz;
+
+bar = new Bar();
+bar.foobar = 'foobar';
+bar.baz = foo;
+
+foo.bar = bar;
+
+// Ignores 'unary' operators (those that don't have a space after):
+const dx = x * cos(theta) + -y * sin(theta);
+const dy = x * sin(theta) + y * cos(theta);
+
+// Does alright with commas:
+// prettier-ignore
+const matrix = [
+	100, 50, 0, //
+	0, 1, 0, //
+	2000, 300, 64, //
+];
 ```
 
 Will appear visually as
 
-```text
-foo       = bar + baz;
-longerfoo = b   - baz;
+<!-- prettier-ignore -->
+```javascript
+// Aligns operators:
+foo    = bar;
+foobar = baz;
 
-this           = this
-anotherExample = anotherExample
-thing          = thing
-example        = example
+foo    = foo    + bar;
+foobar = foobar - baz;
 
-a = x      + sin(x) + 0.2 * 12000
-b = sin(y) + y      * 6
+// Knows the difference between assignment, 'binary', and comparison:
+foo    = bar;
+foobar = baz;
+if (foobar === bar) {
+	bar = fizzbuzz;
+}
+
+// Groups object assignments:
+foo = new Foo();
+foo.foo    = bar;
+foo.foobar = baz;
+
+bar = new Bar();
+bar.foobar = 'foobar';
+bar.baz    = foo;
+
+foo.bar = bar;
+
+// Ignores 'unary' operators (those that don't have a space after):
+const dx = x * cos(theta) + -y * sin(theta);
+const dy = x * sin(theta) + y  * cos(theta);
+
+// Does alright with commas:
+// prettier-ignore
+const matrix = [
+	100 , 50 , 0 , //
+	0   , 1  , 0 , //
+	2000, 300, 64, //
+];
 ```
 
 This works by adjusting the width of the character.
