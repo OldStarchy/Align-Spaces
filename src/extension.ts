@@ -71,7 +71,7 @@ const getLineMatch = () =>
 	new RegExp(
 		`(.*?(.))(${operatorsSorted
 			.map((operator) => operator.replace(/(.)/g, '\\$1'))
-			.join('|')})`,
+			.join('|')})(?=\\s)`,
 		'g'
 	); ///(.+?)(!==|===|!=|==|\+=|-=|\*=|\/=|\?\?=|^=|=(?!>)|\+|-(?!>)|[^/]\*|\/|,)/g;
 
