@@ -2,7 +2,7 @@
 
 All notable changes to the "align-spaces" extension will be documented in this file.
 
-## PATCH
+## 0.0.2
 
 -   Better handling for multi-character tokens
 -   Don't align lines with different indentation
