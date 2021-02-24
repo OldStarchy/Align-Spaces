@@ -72,10 +72,14 @@ const operatorsSorted = [
 const getLineMatch = () =>
 	new RegExp(
 		`(.*?(.))(${operatorsSorted
-			.map((operator) => operator.replace(/(.)/g, '\\$1'))
-			.join('|')})(?=\\s)`,
+			.map(
+				(operator) =>
+					operator.replace(/(.)/g, '\\$1') +
+					(operatorsGroup[operator] === 'binary' ? '(?=\\s)' : '')
+			)
+			.join('|')})`,
 		'g'
-	); ///(.+?)(!==|===|!=|==|\+=|-=|\*=|\/=|\?\?=|^=|=(?!>)|\+|-(?!>)|[^/]\*|\/|,)/g;
+	);
 
 interface LinePart {
 	text: string;
