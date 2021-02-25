@@ -2,6 +2,10 @@
 
 All notable changes to the "align-spaces" extension will be documented in this file.
 
+## 0.0.4
+
+-   Fix decorators can only be up to 30 characters wide
+
 ## 0.0.3
 
 -   Only ignore operators without a trailing space if they're 'binary'

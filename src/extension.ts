@@ -38,12 +38,24 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 }
 
-const decorationType = new Array(30).fill(0).map((_, i) =>
-	vscode.window.createTextEditorDecorationType({
-		letterSpacing: `${i}ch`,
-		rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
-	})
-);
+class DecorationTypeStore {
+	private store: vscode.TextEditorDecorationType[] = [];
+	getForWidth(width: number) {
+		return (this.store[
+			width
+		] ??= vscode.window.createTextEditorDecorationType({
+			letterSpacing: `${width}ch`,
+			rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
+		}));
+	}
+
+	reset() {
+		this.store.forEach((v) => v.dispose());
+		this.store = [];
+	}
+}
+
+const decorationTypes = new DecorationTypeStore();
 
 const operatorGroups = {
 	assignment: ['=', '+=', '-=', '*=', '/=', '??=', '^=', '|=', ':='],
@@ -206,7 +218,7 @@ class AlignmentGroup {
 					//Can't apply letter spacing if there's no character before the operator
 					return;
 				if (offsetWidth > 0) {
-					decorations.decorations[offsetWidth].push(
+					(decorations.decorations[offsetWidth] ??= []).push(
 						new vscode.Range(
 							currentLine,
 							characterOffset + textWidth,
@@ -250,23 +262,25 @@ class ThingBuilder<T> {
 }
 
 class DecorationSet {
-	decorations: vscode.Range[][] = decorationType.map(() => []);
+	decorations: vscode.Range[][] = [];
 
 	combine(other: DecorationSet) {
 		other.decorations.forEach((ranges, index) =>
-			this.decorations[index].push(...ranges)
+			(this.decorations[index] ??= []).push(...ranges)
 		);
 		return this;
 	}
 
 	apply(editor: vscode.TextEditor) {
 		this.decorations.forEach((ranges, i) => {
-			editor.setDecorations(decorationType[i], ranges);
+			editor.setDecorations(decorationTypes.getForWidth(i), ranges);
 		});
 	}
 }
 
 function decorate(editor: vscode.TextEditor) {
+	decorationTypes.reset();
+
 	let sourceCode = editor.document.getText();
 
 	const sourceCodeArr = sourceCode.split('\n');
