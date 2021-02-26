@@ -2,6 +2,10 @@
 
 All notable changes to the "align-spaces" extension will be documented in this file.
 
+## PATCH
+
+-   Remove ugly border from icon
+
 ## 0.0.5
 
 -   Tweak readme
