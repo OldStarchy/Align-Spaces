@@ -2,7 +2,7 @@
 
 > This extension is in alpha, it is not intended for heavy use.
 
-Aligns certain characters without inserting any characters to align them.
+Aligns certain operators by visually stretching the leading characters, this way you can have groups of aligned code, without having to deal with meaningless whitespace changes in your commits.
 
 ## Features
 
@@ -39,9 +39,9 @@ const dy = x * sin(theta) + y * cos(theta);
 // Does alright with commas:
 // prettier-ignore
 const matrix = [
-	100, 50, 0, //
-	0, 1, 0, //
-	2000, 300, 64, //
+	100, 50, 0,
+	0, 1, 0,
+	2000, 300, 64,
 ];
 ```
 
@@ -81,9 +81,9 @@ const dy = x * sin(theta) + y  * cos(theta);
 // Does alright with commas:
 // prettier-ignore
 const matrix = [
-	100 , 50 , 0 , //
-	0   , 1  , 0 , //
-	2000, 300, 64, //
+	100 , 50 , 0 ,
+	0   , 1  , 0 ,
+	2000, 300, 64,
 ];
 ```
 
