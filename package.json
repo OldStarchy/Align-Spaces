@@ -1,12 +1,13 @@
 {
 	"name": "align-spaces",
+	"version": "0.0.4",
 	"displayName": "Align Spaces",
 	"publisher": "OldStarchy",
-	"description": "",
+	"description": "Align operators without modifying the code",
+	"icon": "images/icon.png",
 	"repository": {
 		"url": "https://github.com/aNickzz/Align-Spaces"
 	},
-	"version": "0.0.4",
 	"engines": {
 		"vscode": "^1.53.0"
 	},
