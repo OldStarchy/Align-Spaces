@@ -2,6 +2,11 @@
 
 All notable changes to the "align-spaces" extension will be documented in this file.
 
+## 0.0.5
+
+-   Tweak readme
+-   Add icon & description
+
 ## 0.0.4
 
 -   Fix decorators can only be up to 30 characters wide
