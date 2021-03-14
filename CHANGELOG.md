@@ -2,6 +2,10 @@
 
 All notable changes to the "align-spaces" extension will be documented in this file.
 
+## PATCH
+
+-   Disable decorations when deactivating (should prevent needing to reload after updates / removing the extension)
+
 ## 0.0.6
 
 -   Remove ugly border from icon

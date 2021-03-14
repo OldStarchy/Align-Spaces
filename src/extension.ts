@@ -203,4 +203,7 @@ function decorate(editor: vscode.TextEditor) {
 	decorators.apply(editor);
 }
 
-export function deactivate() {}
+export function deactivate() {
+	decorationTypes.reset();
+	console.log('Extension "align-spaces" deactivated.');
+}
