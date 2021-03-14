@@ -1,15 +1,101 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
+// If you can read this, you are too close
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
+import * as vscode from 'vscode';
+import AlignmentGroup from './AlignmentGroup';
+import DecorationSet from './DecorationSet';
+import DecorationTypeStore from './DecorationTypeStore';
+import LineData from './LineData';
+import { getLineMatch } from './operatorGroups';
+
+// Hi, If you're reading this, you're probably interested to know how this
+// extension works.
+
+/*
+	When an editor is decorated, the document is parsed line by line.
+
+	Each line is split in to parts, each part contains some text, followed by an
+	"operator".
+
+	For certain types of operators (eg. 'binary' operators), it may only be
+	considered if it is immediately followed by a space. This is to ignore
+	operators like '+' and '-' which can appear as both binary, and unary
+	operators. This helps to handle negative numbers "-5" to be treated the same
+	as positive numbers "5".
+
+	```typescript
+	foo = -foo + 1
+	foobar = foobar + 2
+	if (foo === bar)
+		foo = bar
+	bar = bar
+	bar.foo = foo
+	bar.foobar = baz
+	```
+
+	In this case, the lines are split as follows. Note that the '-' in '-foo' is
+	not considered as it doesn't have a following space.
+
+	['foo =', ' -foo +']
+	['foobar =', ' foobar +']
+	['if (foo ===']
+	['foo =']
+	['bar =']
+	['bar.foo =']
+	['bar.foobar =']
+
+	Then lines are grouped by their signature, which consists of the
+
+	-	indentation
+	-	operator group
+	-	prefix
+
+	The indentation is just simply any whitespace characters before the first
+	non-whitespace character.
+
+	Operators are grouped in to the following types. These groups are mostly
+	arbitrary, and just what I've found that work.
+
+	-	assignment
+	-	binary
+	-	comparison
+	-	comma
+
+	The prefix is a little bit more complicated as its goal is to group similar
+	object assignments. In most languages that I use, objects are indexed by the
+	'.' or the '->' operators. The prefix of a line is set if the first part of
+	the line
+
+	-	is an assignment operator
+	-	includes one of these indexing operators
+	-	contains only word characters after the last indexing operator
+
+	The prefix is taken as everything upto and including the last index
+	operator.
+
+	The line signatures from above then become
+
+	{indent: '', prefix: '', operatorTypes: ['assignment', 'binary']}
+	{indent: '', prefix: '', operatorTypes: ['assignment', 'binary']}
+	{indent: '', prefix: '', operatorTypes: ['comparison']}
+	{indent: '\t', prefix: '', operatorTypes: ['assignment']}
+	{indent: '', prefix: '', operatorTypes: ['assignment']}
+	{indent: '', prefix: 'bar.', operatorTypes: ['assignment']}
+	{indent: '', prefix: 'bar.', operatorTypes: ['assignment']}
+
+	Adjacent lines with equal signatures are then grouped.
+
+	For each group, the maximum width of each nth part is calculated, then
+	decorators are applied to the character just before the operator. The
+	decorator applies the `letter-spacing' css property so that the part appears
+	as wide as the maximum width. It is assumed that users have a fixed-width
+	font.
+
+	When calculating the width, it is also assumed that a tab is 4 characters
+	wide.
+*/
+
 export function activate(context: vscode.ExtensionContext) {
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log(
-		'Congratulations, your extension "align-spaces" is now active!'
-	);
+	console.log('Extension "align-spaces" is now active!');
 
 	const eventHandler = (
 		event: vscode.TextDocumentChangeEvent | vscode.TextDocument
@@ -21,222 +107,34 @@ export function activate(context: vscode.ExtensionContext) {
 		)[0];
 
 		try {
-			if (openEditor) decorate(openEditor);
+			if (openEditor) {
+				decorate(openEditor);
+			}
 		} catch (e: unknown) {
 			console.error(e);
 		}
 	};
 	vscode.workspace.onDidChangeTextDocument(eventHandler);
-	vscode.workspace.onDidOpenTextDocument(eventHandler);
+	// vscode.workspace.onDidOpenTextDocument(eventHandler);
 
-	vscode.window.visibleTextEditors.forEach((editor) => {
-		try {
-			decorate(editor);
-		} catch (e: unknown) {
-			console.error(e);
-		}
-	});
-}
-
-class DecorationTypeStore {
-	private store: vscode.TextEditorDecorationType[] = [];
-	getForWidth(width: number) {
-		return (this.store[
-			width
-		] ??= vscode.window.createTextEditorDecorationType({
-			letterSpacing: `${width}ch`,
-			rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
-		}));
-	}
-
-	reset() {
-		this.store.forEach((v) => v.dispose());
-		this.store = [];
-	}
-}
-
-const decorationTypes = new DecorationTypeStore();
-
-const operatorGroups = {
-	assignment: ['=', '+=', '-=', '*=', '/=', '??=', '^=', '|=', ':='],
-	binary: ['+', '-', '*', '/', '??', '**', '..'],
-	comparison: ['===', '!==', '==', '!=', '>=', '<='],
-	comma: [','],
-	index: ['.', '->', ':', '=>'],
-};
-
-const operatorsGroup: { [operator: string]: keyof typeof operatorGroups } = {};
-(Object.keys(
-	operatorGroups
-) as (keyof typeof operatorGroups)[]).forEach((groupName) =>
-	operatorGroups[groupName].forEach(
-		(operator) => (operatorsGroup[operator] = groupName)
-	)
-);
-
-const operatorsSorted = [
-	...operatorGroups.assignment,
-	...operatorGroups.binary,
-	...operatorGroups.comparison,
-	...operatorGroups.comma,
-].sort((a, b) => b.length - a.length); //naive regex escape
-
-const getLineMatch = () =>
-	new RegExp(
-		`(.*?(.))(${operatorsSorted
-			.map(
-				(operator) =>
-					operator.replace(/(.)/g, '\\$1') +
-					(operatorsGroup[operator] === 'binary' ? '(?=\\s)' : '')
-			)
-			.join('|')})`,
-		'g'
-	);
-
-interface LinePart {
-	text: string;
-	width: number;
-	length: number;
-	operator: string;
-	operatorWidth: number;
-	operatorType: keyof typeof operatorGroups;
-	decorationLocation: number;
-	decoratorChar: string;
-}
-class LineStuff {
-	constructor(
-		public indentation: string,
-		public prefix: string,
-		public parts: LinePart[]
-	) {}
-
-	static fromString(line: string) {
-		const lineMatch = getLineMatch();
-
-		const indentation = /^\s*/.exec(line)![0];
-		const parts: LinePart[] = [];
-
-		for (
-			let match: RegExpExecArray | null = null;
-			(match = lineMatch.exec(line));
-
-		) {
-			const [part, text, decoratorChar, operator] = match;
-
-			const width = getPhysicalWidth(part);
-			const operatorWidth = getPhysicalWidth(operator);
-			const decorationLocation = text.length;
-			const operatorType = operatorsGroup[operator];
-			const length = part.length;
-
-			parts.push({
-				text,
-				length,
-				width,
-				operator,
-				operatorWidth,
-				operatorType,
-				decorationLocation,
-				decoratorChar,
-			});
-		}
-
-		let prefix = '';
-
-		if (parts[0].operatorType === 'assignment') {
-			const prefixMatch = /^\s*(\w+(?:\.|->))+\w+/.exec(parts[0].text);
-			if (prefixMatch) {
-				prefix = prefixMatch[1];
+	const editorEventHandler = (editor: vscode.TextEditor | undefined) => {
+		if (editor) {
+			try {
+				decorate(editor);
+			} catch (e: unknown) {
+				console.error(e);
 			}
 		}
+	};
+	vscode.window.onDidChangeActiveTextEditor(editorEventHandler);
 
-		return new LineStuff(indentation, prefix, parts);
-	}
-
-	compare(other: LineStuff) {
-		if (this.indentation !== other.indentation) {
-			return false;
-		}
-		if (this.prefix !== other.prefix) {
-			return false;
-		}
-
-		const lim = Math.min(this.parts.length, other.parts.length);
-
-		for (let i = 0; i < lim; i++) {
-			if (this.parts[i].operatorType !== other.parts[i].operatorType) {
-				return false;
-			}
-		}
-
-		return true;
-	}
+	// Decorate the currently visible editors
+	vscode.window.visibleTextEditors.forEach(editorEventHandler);
 }
 
-class AlignmentGroup {
-	constructor(public lineStart: number, public lines: LineStuff[]) {}
+export const decorationTypes = new DecorationTypeStore();
 
-	isLineStuffCompatible(other: LineStuff) {
-		const incompatible = this.lines.some((line) => !line.compare(other));
-
-		return !incompatible;
-	}
-
-	resolveAlignment(): DecorationSet {
-		const colWidths: number[] = [];
-
-		const decorations = new DecorationSet();
-
-		this.lines.forEach((line) => {
-			line.parts.forEach((part, i) => {
-				if (i > colWidths.length - 1) {
-					colWidths.push(part.width);
-				} else if (colWidths[i] < part.width) {
-					colWidths[i] = part.width;
-				}
-			});
-		});
-
-		this.lines.forEach((line, index) => {
-			const currentLine = this.lineStart + index;
-			let characterOffset = 0;
-
-			line.parts.forEach((part, i) => {
-				const offset = colWidths[i] - part.width;
-
-				// TODO: Get tab width
-				const tabWidth = 4;
-
-				const offsetWidth =
-					part.decoratorChar === '\t'
-						? Math.floor(offset / tabWidth)
-						: offset;
-
-				const textWidth = part.text.length - 1;
-
-				if (characterOffset + textWidth < 0)
-					//Can't apply letter spacing if there's no character before the operator
-					return;
-				if (offsetWidth > 0) {
-					(decorations.decorations[offsetWidth] ??= []).push(
-						new vscode.Range(
-							currentLine,
-							characterOffset + textWidth,
-							currentLine,
-							characterOffset + textWidth + 1
-						)
-					);
-				}
-
-				characterOffset += part.length;
-			});
-		});
-
-		return decorations;
-	}
-}
-
-function getPhysicalWidth(line: string) {
+export function getPhysicalWidth(line: string) {
 	return line
 		.split('')
 		.map((ch, i) => (ch === '\t' ? 4 - ((i + 1) % 4) + 3 : 1))
@@ -261,23 +159,6 @@ class ThingBuilder<T> {
 	}
 }
 
-class DecorationSet {
-	decorations: vscode.Range[][] = [];
-
-	combine(other: DecorationSet) {
-		other.decorations.forEach((ranges, index) =>
-			(this.decorations[index] ??= []).push(...ranges)
-		);
-		return this;
-	}
-
-	apply(editor: vscode.TextEditor) {
-		this.decorations.forEach((ranges, i) => {
-			editor.setDecorations(decorationTypes.getForWidth(i), ranges);
-		});
-	}
-}
-
 function decorate(editor: vscode.TextEditor) {
 	decorationTypes.reset();
 
@@ -295,7 +176,7 @@ function decorate(editor: vscode.TextEditor) {
 			continue;
 		}
 
-		const stuff = LineStuff.fromString(sourceCodeArr[line]);
+		const stuff = LineData.fromString(sourceCodeArr[line]);
 
 		if (
 			groupBuilder.current &&
@@ -322,5 +203,4 @@ function decorate(editor: vscode.TextEditor) {
 	decorators.apply(editor);
 }
 
-// this method is called when your extension is deactivated
 export function deactivate() {}
