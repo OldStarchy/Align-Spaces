@@ -2,7 +2,7 @@
 
 All notable changes to the "align-spaces" extension will be documented in this file.
 
-## PATCH
+## 0.0.6
 
 -   Remove ugly border from icon
 -   Improve prefix detection

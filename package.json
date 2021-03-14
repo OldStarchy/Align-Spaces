@@ -1,6 +1,6 @@
 {
 	"name": "align-spaces",
-	"version": "0.0.5",
+	"version": "0.0.6",
 	"displayName": "Align Spaces",
 	"publisher": "OldStarchy",
 	"description": "Align operators without modifying the code",
