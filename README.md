@@ -65,8 +65,8 @@ foobar = foobar - baz;
 
 // Ignores content in strings
 foo = {
-    foo: 'foobar foobar foobar',
-    foo: 'foo, bar'            ,
+	foo: 'foobar foobar foobar',
+	foo: 'foo, bar'            ,
 	foo: '\'foo\', "", bar'    ,
 }
 
