@@ -5,6 +5,7 @@ All notable changes to the "align-spaces" extension will be documented in this f
 ## PATCH
 
 -   Disable decorations when deactivating (should prevent needing to reload after updates / removing the extension)
+-   Try to avoid aligning characters inside strings
 
 ## 0.0.6
 

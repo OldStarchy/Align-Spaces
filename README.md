@@ -14,6 +14,13 @@ foobar = baz;
 foo = foo + bar;
 foobar = foobar - baz;
 
+// Ignores content in strings
+foo = {
+	foo: 'foobar foobar',
+	foo: 'foo, bar',
+	foo: '\'foo\', "", bar',
+};
+
 // Knows the difference between assignment, 'binary', and comparison:
 foo = bar;
 foobar = baz;
@@ -55,6 +62,13 @@ foobar = baz;
 
 foo    = foo    + bar;
 foobar = foobar - baz;
+
+// Ignores content in strings
+foo = {
+    foo: 'foobar foobar foobar',
+    foo: 'foo, bar'            ,
+	foo: '\'foo\', "", bar'    ,
+}
 
 // Knows the difference between assignment, 'binary', and comparison:
 foo    = bar;

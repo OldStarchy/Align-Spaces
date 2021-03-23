@@ -159,6 +159,13 @@ class ThingBuilder<T> {
 	}
 }
 
+function obfuscateStrings(str: string) {
+	return str.replace(
+		/(?<!\\)('|"|`)(.*?)(?<!\\)\1/g,
+		(_match, quote, content) => quote + content.replace(/./g, ' ') + quote
+	);
+}
+
 function decorate(editor: vscode.TextEditor) {
 	decorationTypes.reset();
 
@@ -171,12 +178,14 @@ function decorate(editor: vscode.TextEditor) {
 	for (let line = 0; line < sourceCodeArr.length; line++) {
 		const lineMatch = getLineMatch();
 
-		if (!lineMatch.test(sourceCodeArr[line])) {
+		const lineString = obfuscateStrings(sourceCodeArr[line]);
+
+		if (!lineMatch.test(lineString)) {
 			groupBuilder.push();
 			continue;
 		}
 
-		const stuff = LineData.fromString(sourceCodeArr[line]);
+		const stuff = LineData.fromString(lineString);
 
 		if (
 			groupBuilder.current &&
