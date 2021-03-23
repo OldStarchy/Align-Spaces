@@ -22,7 +22,43 @@
 		"onStartupFinished"
 	],
 	"main": "./out/extension.js",
-	"contributes": {},
+	"contributes": {
+		"configuration": {
+			"title": "Align Spaces",
+			"properties": {
+				"align-spaces.allowed-language-ids": {
+					"anyOf": [
+						{
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						{
+							"type": "null"
+						}
+					],
+					"default": null,
+					"description": "If set to an array, only activate for the given languages."
+				},
+				"align-spaces.disallowed-language-ids": {
+					"anyOf": [
+						{
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						{
+							"type": "null"
+						}
+					],
+					"default": null,
+					"description": "If set to an array, do not activate for the given languages."
+				}
+			}
+		}
+	},
 	"scripts": {
 		"vscode:prepublish": "yarn run compile",
 		"compile": "tsc -p ./",

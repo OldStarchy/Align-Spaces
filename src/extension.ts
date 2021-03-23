@@ -94,8 +94,15 @@ import { getLineMatch } from './operatorGroups';
 	wide.
 */
 
+const EXTENSION_ID = 'align-spaces';
+
+interface ExtensionConfig extends vscode.WorkspaceConfiguration {
+	'allowed-language-ids': string[] | null;
+	'disallowed-language-ids': string[] | null;
+}
+
 export function activate(context: vscode.ExtensionContext) {
-	console.log('Extension "align-spaces" is now active!');
+	console.log(`Extension "${EXTENSION_ID}" is now active!`);
 
 	const eventHandler = (
 		event: vscode.TextDocumentChangeEvent | vscode.TextDocument
@@ -114,6 +121,22 @@ export function activate(context: vscode.ExtensionContext) {
 			console.error(e);
 		}
 	};
+
+	function decorateCurrentEditor() {
+		const currentEditor = vscode.window.activeTextEditor;
+		if (!currentEditor) {
+			return;
+		}
+
+		const languageId = currentEditor.document.languageId;
+
+		if (shouldDecorateLanguage(languageId)) {
+			editorEventHandler(currentEditor);
+		} else {
+			clearDecorations();
+		}
+	}
+
 	vscode.workspace.onDidChangeTextDocument(eventHandler);
 	// vscode.workspace.onDidOpenTextDocument(eventHandler);
 
@@ -128,8 +151,29 @@ export function activate(context: vscode.ExtensionContext) {
 	};
 	vscode.window.onDidChangeActiveTextEditor(editorEventHandler);
 
-	// Decorate the currently visible editors
-	vscode.window.visibleTextEditors.forEach(editorEventHandler);
+	vscode.workspace.onDidChangeConfiguration((e) => {
+		if (e.affectsConfiguration(EXTENSION_ID)) {
+			loadConfig();
+
+			decorateCurrentEditor();
+		}
+	});
+
+	loadConfig();
+
+	decorateCurrentEditor();
+}
+
+const config: {
+	current: ExtensionConfig;
+} = {
+	current: vscode.workspace.getConfiguration(EXTENSION_ID) as ExtensionConfig,
+};
+
+function loadConfig() {
+	config.current = vscode.workspace.getConfiguration(
+		EXTENSION_ID
+	) as ExtensionConfig;
 }
 
 export const decorationTypes = new DecorationTypeStore();
@@ -166,8 +210,33 @@ function obfuscateStrings(str: string) {
 	);
 }
 
-function decorate(editor: vscode.TextEditor) {
+function shouldDecorateLanguage(id: string) {
+	if (
+		config.current['allowed-language-ids'] === null &&
+		config.current['disallowed-language-ids'] === null
+	) {
+		return true;
+	}
+
+	if (config.current['disallowed-language-ids'] !== null) {
+		if (config.current['disallowed-language-ids'].includes(id)) {
+			return false;
+		}
+	}
+
+	return config.current['allowed-language-ids']!.includes(id);
+}
+
+function clearDecorations() {
 	decorationTypes.reset();
+}
+
+function decorate(editor: vscode.TextEditor) {
+	if (!shouldDecorateLanguage(editor.document.languageId)) {
+		return;
+	}
+
+	clearDecorations();
 
 	let sourceCode = editor.document.getText();
 

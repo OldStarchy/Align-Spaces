@@ -2,6 +2,10 @@
 
 All notable changes to the "align-spaces" extension will be documented in this file.
 
+## MINOR
+
+-   Add allowed and disallowed languages config. Fixes #10.
+
 ## 0.0.7
 
 -   Disable decorations when deactivating (should prevent needing to reload after updates / removing the extension)
