@@ -23,6 +23,12 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+		"commands": [
+			{
+				"command": "align-spaces.toggle",
+				"title": "Align Spaces: Toggle"
+			}
+		],
 		"configuration": {
 			"title": "Align Spaces",
 			"properties": {

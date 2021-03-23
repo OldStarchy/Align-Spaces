@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-export default class DecorationTypeStore {
+export default class DecorationTypeStore implements vscode.Disposable {
 	private store: vscode.TextEditorDecorationType[] = [];
 	getForWidth(width: number) {
 		return (this.store[
@@ -14,5 +14,9 @@ export default class DecorationTypeStore {
 	reset() {
 		this.store.forEach((v) => v.dispose());
 		this.store = [];
+	}
+
+	dispose() {
+		this.reset();
 	}
 }

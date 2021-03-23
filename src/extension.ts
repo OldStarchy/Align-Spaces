@@ -101,8 +101,23 @@ interface ExtensionConfig extends vscode.WorkspaceConfiguration {
 	'disallowed-language-ids': string[] | null;
 }
 
+const disposables: vscode.Disposable[] = [];
+
+let active = true;
+
 export function activate(context: vscode.ExtensionContext) {
 	console.log(`Extension "${EXTENSION_ID}" is now active!`);
+
+	disposables.push(
+		vscode.commands.registerCommand('align-spaces.toggle', () => {
+			active = !active;
+			if (active) {
+				decorateCurrentEditor();
+			} else {
+				clearDecorations();
+			}
+		})
+	);
 
 	const eventHandler = (
 		event: vscode.TextDocumentChangeEvent | vscode.TextDocument
@@ -177,6 +192,7 @@ function loadConfig() {
 }
 
 export const decorationTypes = new DecorationTypeStore();
+disposables.push(decorationTypes);
 
 export function getPhysicalWidth(line: string) {
 	return line
@@ -282,6 +298,6 @@ function decorate(editor: vscode.TextEditor) {
 }
 
 export function deactivate() {
-	decorationTypes.reset();
+	disposables.forEach((d) => d.dispose());
 	console.log('Extension "align-spaces" deactivated.');
 }
