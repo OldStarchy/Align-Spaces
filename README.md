@@ -1,8 +1,8 @@
 # Align Spaces
 
-> This extension is in alpha, it is not intended for heavy use.
-
 Aligns certain operators by visually stretching the leading characters, this way you can have groups of aligned code, without having to deal with meaningless whitespace changes in your commits.
+
+> Got a suggestion or issue? [Raise an issue on GitHub](https://github.com/aNickzz/Align-Spaces/issues/new)
 
 ## Features
 

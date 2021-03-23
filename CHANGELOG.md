@@ -2,7 +2,7 @@
 
 All notable changes to the "align-spaces" extension will be documented in this file.
 
-## MINOR
+## 0.1.0
 
 -   Add allowed and disallowed languages config. Fixes #10.
 -   Add enable / disable toggle command. Fixes #9.
