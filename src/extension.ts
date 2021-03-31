@@ -248,6 +248,8 @@ function clearDecorations() {
 }
 
 function decorate(editor: vscode.TextEditor) {
+	if (!active) return;
+
 	if (!shouldDecorateLanguage(editor.document.languageId)) {
 		return;
 	}

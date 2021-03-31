@@ -2,6 +2,10 @@
 
 All notable changes to the "align-spaces" extension will be documented in this file.
 
+## 0.1.1
+
+-   Don't decorate things when inactive via the "Toggle" command
+
 ## 0.1.0
 
 -   Add allowed and disallowed languages config. Fixes [#10](https://github.com/aNickzz/Align-Spaces/issues/10).
