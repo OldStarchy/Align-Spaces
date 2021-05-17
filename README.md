@@ -66,8 +66,8 @@ foobar = foobar - baz;
 // Ignores content in strings
 foo = {
 	foo: 'foobar foobar foobar',
-	foo: 'foo, bar'            ,
-	foo: '\'foo\', "", bar'    ,
+	foo: 'foo, bar',
+	foo: '\'foo\', "", bar',
 }
 
 // Knows the difference between assignment, 'binary', and comparison:
@@ -95,8 +95,8 @@ const dy = x * sin(theta) + y  * cos(theta);
 // Does alright with commas:
 // prettier-ignore
 const matrix = [
-	100 , 50 , 0 ,
-	0   , 1  , 0 ,
+	100 , 50 , 0,
+	0   , 1  , 0,
 	2000, 300, 64,
 ];
 ```
