@@ -99,6 +99,10 @@ const EXTENSION_ID = 'align-spaces';
 interface ExtensionConfig extends vscode.WorkspaceConfiguration {
 	'allowed-language-ids': string[] | null;
 	'disallowed-language-ids': string[] | null;
+	// TODO:
+	// [languageId: string]: {
+	// 	'line-comment': string | null;
+	// } | null;
 }
 
 const disposables: vscode.Disposable[] = [];

@@ -12,7 +12,8 @@ export default class LineData {
 	static fromString(line: string) {
 		const lineMatch = getLineMatch();
 
-		const indentation = /^\s*/.exec(line)![0];
+		//TODO: including comments as "indentation" is hardcoded here. It should be configurable per language
+		const indentation = /^\s*(?:(?:\/\/|\*)\s*)?/.exec(line)![0];
 		const parts: LinePart[] = [];
 
 		for (
