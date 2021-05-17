@@ -5,6 +5,7 @@ All notable changes to the "align-spaces" extension will be documented in this f
 ## Patch
 
 -   Include comment markers `//` and `*` (for multiline) as part of the indentation. This allows aligning commented out code, but ignores normal text (as mentioned in [#12](https://github.com/aNickzz/Align-Spaces/issues/12))
+-   Ignore commas if they're the last thing on a line. Fixes [#13](https://github.com/aNickzz/Align-Spaces/issues/13).
 
 ## 0.1.1
 

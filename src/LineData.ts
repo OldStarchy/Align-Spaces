@@ -41,9 +41,14 @@ export default class LineData {
 			});
 		}
 
+		// https://github.com/aNickzz/Align-Spaces/issues/13
+		if (parts[parts.length - 1].operator === ',') {
+			parts.pop();
+		}
+
 		let prefix = '';
 
-		if (parts[0].operatorType === 'assignment') {
+		if (parts.length > 0 && parts[0].operatorType === 'assignment') {
 			const prefixMatch = /^\s*(.*(?:\.|->))\w+/.exec(parts[0].text);
 			if (prefixMatch) {
 				prefix = prefixMatch[1];
