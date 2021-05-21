@@ -63,6 +63,9 @@
 					"description": "If set to an array, do not activate for the given languages."
 				}
 			}
+		},
+		"untrustedWorkspaces": {
+			"supported": true
 		}
 	},
 	"scripts": {

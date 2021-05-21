@@ -2,6 +2,10 @@
 
 All notable changes to the "align-spaces" extension will be documented in this file.
 
+## Minor
+
+-   Support workspace trust. Fixes [#15](https://github.com/aNickzz/Align-Spaces/issues/15).
+
 ## 0.1.2
 
 -   Include comment markers `//` and `*` (for multiline) as part of the indentation. This allows aligning commented out code, but ignores normal text (as mentioned in [#12](https://github.com/aNickzz/Align-Spaces/issues/12))
