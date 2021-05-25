@@ -4,6 +4,10 @@ Aligns certain operators by visually stretching the leading characters, this way
 
 > Got a suggestion or issue? [Raise an issue on GitHub](https://github.com/aNickzz/Align-Spaces/issues/new)
 
+<!--  -->
+
+> Workspace Trust Support ✔
+
 ## Features
 
 ```javascript
@@ -106,7 +110,6 @@ This works by adjusting the width of the character.
 ## Known Issues
 
 -   Rectangular selections are borked
--   Its probably very slow on any decently sized files
 
 ## Release Notes
 
