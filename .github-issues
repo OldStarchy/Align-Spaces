@@ -2,49 +2,51 @@
   {
     "kind": 2,
     "language": "github-issues",
-    "value": "$repo=repo:aNickzz/Align-Spaces\n$issues=$repo is:issue is:open\n$prs=$repo is:pr is:open",
-    "editable": true
+    "value": "$repo=repo:aNickzz/Align-Spaces\n$issues=$repo is:issue is:open\n$prs=$repo is:pr is:open"
   },
   {
     "kind": 1,
     "language": "markdown",
-    "value": "## My Issues",
-    "editable": true
+    "value": "## My Issues"
   },
   {
     "kind": 2,
     "language": "github-issues",
-    "value": "$issues assignee:@me",
-    "editable": true
+    "value": "$issues assignee:@me"
   },
   {
     "kind": 1,
     "language": "markdown",
-    "value": "## All issues",
-    "editable": true
+    "value": "## New issues"
   },
   {
     "kind": 2,
     "language": "github-issues",
-    "value": "$issues",
-    "editable": true
+    "value": "$issues no:milestone"
   },
   {
     "kind": 1,
     "language": "markdown",
-    "value": "## Pull Requests",
-    "editable": true
+    "value": "## All issues"
   },
   {
     "kind": 2,
     "language": "github-issues",
-    "value": "$prs",
-    "editable": true
+    "value": "$issues -label:\"interest needed\""
+  },
+  {
+    "kind": 1,
+    "language": "markdown",
+    "value": "## Pull Requests"
   },
   {
     "kind": 2,
     "language": "github-issues",
-    "value": "",
-    "editable": true
+    "value": "$prs"
+  },
+  {
+    "kind": 2,
+    "language": "github-issues",
+    "value": ""
   }
 ]
