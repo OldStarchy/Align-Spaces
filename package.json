@@ -64,6 +64,12 @@
 				}
 			}
 		},
+		"keybindings": [
+			{
+				"key": "ctrl+shift+=",
+				"command": "align-spaces.toggle"
+			}
+		],
 		"untrustedWorkspaces": {
 			"supported": true
 		}

@@ -4,6 +4,7 @@ All notable changes to the "align-spaces" extension will be documented in this f
 
 ## Minor
 
+-   Add default keybinding for toggling Align Spaces on/off `ctrl+shift+=`.
 -   Support workspace trust. Fixes [#15](https://github.com/aNickzz/Align-Spaces/issues/15).
 
 ## 0.1.2

@@ -8,6 +8,8 @@ Aligns certain operators by visually stretching the leading characters, this way
 
 > Workspace Trust Support ✔
 
+The default keybinding to toggle alignment is `ctrl` + `shift` + `=`.
+
 ## Features
 
 ```javascript
