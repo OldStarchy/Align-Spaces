@@ -2,6 +2,10 @@
 
 All notable changes to the "align-spaces" extension will be documented in this file.
 
+## Patch
+
+-   Make `:` align as assignment operators like they were supposed to initially
+
 ## 0.2.0
 
 -   Add default keybinding for toggling Align Spaces on/off `ctrl+shift+=`.
