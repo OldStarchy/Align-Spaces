@@ -2,7 +2,7 @@
 
 All notable changes to the "align-spaces" extension will be documented in this file.
 
-## Patch
+## 0.2.1
 
 -   Make `:` align as assignment operators like they were supposed to initially
 
