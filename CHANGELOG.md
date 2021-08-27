@@ -2,7 +2,7 @@
 
 All notable changes to the "align-spaces" extension will be documented in this file.
 
-## Minor
+## 0.3.0
 
 -   Add debounce to realignment when typing, configurable with "align-spaces.delay"
 -   Add command to manually realign for when "align-spaces.delay" is set to "off
