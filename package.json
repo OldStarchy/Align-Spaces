@@ -27,6 +27,10 @@
 			{
 				"command": "align-spaces.toggle",
 				"title": "Align Spaces: Toggle"
+			},
+			{
+				"command": "align-spaces.realign",
+				"title": "Align Spaces: Realign"
 			}
 		],
 		"configuration": {
@@ -61,6 +65,18 @@
 					],
 					"default": null,
 					"description": "If set to an array, do not activate for the given languages."
+				},
+				"align-spaces.delay": {
+					"anyof": [
+						{
+							"type": "number"
+						},
+						{
+							"const": "off"
+						}
+					],
+					"default": 0,
+					"description": "If set to a number, this defines the number of milliseconds to wait before realigning. <=0 means no delay.\n\nIf set to `\"off\"`, automatic realignment is prevented and you must run the `align-spaces.realign` command."
 				}
 			}
 		},
@@ -68,6 +84,10 @@
 			{
 				"key": "ctrl+shift+=",
 				"command": "align-spaces.toggle"
+			},
+			{
+				"key": "ctrl+shift+\\",
+				"command": "align-spaces.realign"
 			}
 		],
 		"untrustedWorkspaces": {

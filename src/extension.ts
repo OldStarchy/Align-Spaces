@@ -1,5 +1,6 @@
 // If you can read this, you are too close
 
+import { setTimeout } from 'timers';
 import * as vscode from 'vscode';
 import AlignmentGroup from './AlignmentGroup';
 import DecorationSet from './DecorationSet';
@@ -99,6 +100,7 @@ const EXTENSION_ID = 'align-spaces';
 interface ExtensionConfig extends vscode.WorkspaceConfiguration {
 	'allowed-language-ids': string[] | null;
 	'disallowed-language-ids': string[] | null;
+	delay: number | 'off';
 	// TODO:
 	// [languageId: string]: {
 	// 	'line-comment': string | null;
@@ -116,14 +118,19 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand('align-spaces.toggle', () => {
 			active = !active;
 			if (active) {
-				decorateCurrentEditor();
+				decorateCurrentEditor(false);
 			} else {
 				clearDecorations();
+			}
+		}),
+		vscode.commands.registerCommand('align-spaces.realign', () => {
+			if (active) {
+				decorateCurrentEditor(false);
 			}
 		})
 	);
 
-	const eventHandler = (
+	const onChangeTextHandler = (
 		event: vscode.TextDocumentChangeEvent | vscode.TextDocument
 	) => {
 		const doc = 'document' in event ? event.document : event;
@@ -132,16 +139,10 @@ export function activate(context: vscode.ExtensionContext) {
 			(editor) => editor.document.uri === doc.uri
 		)[0];
 
-		try {
-			if (openEditor) {
-				decorate(openEditor);
-			}
-		} catch (e: unknown) {
-			console.error(e);
-		}
+		decorateDebounced(openEditor);
 	};
 
-	function decorateCurrentEditor() {
+	function decorateCurrentEditor(debounce: boolean) {
 		const currentEditor = vscode.window.activeTextEditor;
 		if (!currentEditor) {
 			return;
@@ -150,37 +151,40 @@ export function activate(context: vscode.ExtensionContext) {
 		const languageId = currentEditor.document.languageId;
 
 		if (shouldDecorateLanguage(languageId)) {
-			editorEventHandler(currentEditor);
+			if (debounce) {
+				decorateDebounced(currentEditor);
+			} else {
+				decorate(currentEditor);
+			}
 		} else {
 			clearDecorations();
 		}
 	}
 
-	vscode.workspace.onDidChangeTextDocument(eventHandler);
-	// vscode.workspace.onDidOpenTextDocument(eventHandler);
+	vscode.workspace.onDidChangeTextDocument(onChangeTextHandler);
+	// vscode.workspace.onDidOpenTextDocument(onChangeTextHandler);
 
-	const editorEventHandler = (editor: vscode.TextEditor | undefined) => {
-		if (editor) {
-			try {
-				decorate(editor);
-			} catch (e: unknown) {
-				console.error(e);
+	vscode.window.onDidChangeActiveTextEditor(
+		(editor: vscode.TextEditor | undefined) => {
+			if (!editor) {
+				return;
 			}
+
+			decorate(editor);
 		}
-	};
-	vscode.window.onDidChangeActiveTextEditor(editorEventHandler);
+	);
 
 	vscode.workspace.onDidChangeConfiguration((e) => {
 		if (e.affectsConfiguration(EXTENSION_ID)) {
 			loadConfig();
 
-			decorateCurrentEditor();
+			decorateCurrentEditor(false);
 		}
 	});
 
 	loadConfig();
 
-	decorateCurrentEditor();
+	decorateCurrentEditor(false);
 }
 
 const config: {
@@ -193,6 +197,24 @@ function loadConfig() {
 	config.current = vscode.workspace.getConfiguration(
 		EXTENSION_ID
 	) as ExtensionConfig;
+
+	for (const setting of ['allowed-language-ids', 'disallowed-language-ids']) {
+		if (config.current[setting] !== null) {
+			if (
+				!(config.current[setting] instanceof Array) ||
+				config.current[setting].some((t: any) => typeof t !== 'string')
+			) {
+				(config.current as any)[setting] = null;
+				console.warn(`Invalid "${setting}" setting`);
+			}
+		}
+	}
+
+	if (config.current.delay !== 'off') {
+		if (typeof config.current.delay !== 'number') {
+			config.current.delay = 'off';
+		}
+	}
 }
 
 export const decorationTypes = new DecorationTypeStore();
@@ -251,8 +273,41 @@ function clearDecorations() {
 	decorationTypes.reset();
 }
 
+let timeoutId: null | number = null;
+function decorateDebounced(editor: vscode.TextEditor) {
+	if (!shouldDecorateLanguage(editor.document.languageId)) {
+		return;
+	}
+
+	const delay = config.current.delay;
+
+	if (delay === 'off') {
+		return;
+	}
+
+	if (delay <= 0) {
+		decorate(editor);
+		return;
+	}
+
+	// Getting nodejs typings for these timeout functions for some reason
+	if (timeoutId) {
+		(clearTimeout as unknown as (id: number) => void)(timeoutId);
+		timeoutId = null;
+	}
+
+	timeoutId = (
+		setTimeout as unknown as (callback: () => void, delay: number) => number
+	)(() => {
+		decorate(editor);
+		timeoutId = null;
+	}, delay);
+}
+
 function decorate(editor: vscode.TextEditor) {
-	if (!active) return;
+	if (!active) {
+		return;
+	}
 
 	if (!shouldDecorateLanguage(editor.document.languageId)) {
 		return;
