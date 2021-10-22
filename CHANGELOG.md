@@ -2,6 +2,10 @@
 
 All notable changes to the "align-spaces" extension will be documented in this file.
 
+## 0.3.1
+
+-   Fix alignment would fail if `allowed-language-ids` was set
+
 ## 0.3.0
 
 -   Add debounce to realignment when typing, configurable with "align-spaces.delay"
