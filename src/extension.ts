@@ -265,8 +265,10 @@ function shouldDecorateLanguage(id: string) {
 			return false;
 		}
 	}
-
-	return config.current['allowed-language-ids']!.includes(id);
+	if (config.current['allowed-language-ids'] !== null) {
+		return config.current['allowed-language-ids'].includes(id);
+	}
+	return true;
 }
 
 function clearDecorations() {
