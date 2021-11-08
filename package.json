@@ -77,6 +77,12 @@
 					],
 					"default": 0,
 					"description": "If set to a number, this defines the number of milliseconds to wait before realigning. <=0 means no delay.\n\nIf set to `\"off\"`, automatic realignment is prevented and you must run the `align-spaces.realign` command."
+				},
+				"align-spaces.skip-after-first-assignment": {
+					"title": "Skip after first assignment",
+					"type": "boolean",
+					"default": false,
+					"description": "If set, everything after the first assignment operator (`=`, `+=`, `/=`, `:`, etc.) will be ignored"
 				}
 			}
 		},

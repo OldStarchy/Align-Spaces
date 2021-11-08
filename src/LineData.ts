@@ -1,3 +1,4 @@
+import { config } from './config';
 import { getPhysicalWidth } from './extension';
 import LinePart from './LinePart';
 import { getLineMatch, operatorsGroup } from './operatorGroups';
@@ -39,6 +40,13 @@ export default class LineData {
 				decorationLocation,
 				decoratorChar,
 			});
+
+			if (
+				operatorType === 'assignment' &&
+				config.current['skip-after-first-assignment']
+			) {
+				break;
+			}
 		}
 
 		// https://github.com/aNickzz/Align-Spaces/issues/13

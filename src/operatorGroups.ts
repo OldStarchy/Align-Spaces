@@ -9,27 +9,27 @@ export const operatorGroups = {
 export const operatorsGroup: {
 	[operator: string]: keyof typeof operatorGroups;
 } = {};
-(Object.keys(
-	operatorGroups
-) as (keyof typeof operatorGroups)[]).forEach((groupName) =>
-	operatorGroups[groupName].forEach(
-		(operator) => (operatorsGroup[operator] = groupName)
-	)
+(Object.keys(operatorGroups) as (keyof typeof operatorGroups)[]).forEach(
+	(groupName) =>
+		operatorGroups[groupName].forEach(
+			(operator) => (operatorsGroup[operator] = groupName)
+		)
 );
 const operatorsSorted = [
 	...operatorGroups.assignment,
 	...operatorGroups.binary,
 	...operatorGroups.comparison,
 	...operatorGroups.comma,
-].sort((a, b) => b.length - a.length); //naive regex escape
+	// ...operatorGroups.index,
+].sort((a, b) => b.length - a.length);
 
 export const getLineMatch = () =>
 	new RegExp(
 		`(.*?(.))(${operatorsSorted
 			.map(
 				(operator) =>
-					operator.replace(/(.)/g, '\\$1') +
-					(operatorsGroup[operator] === 'binary' ? '(?=\\s)' : '')
+					operator.replace(/(.)/g, '\\$1') + // naive regex escape
+					(operatorsGroup[operator] === 'binary' ? '(?=\\s)' : '') // require spaces before binary
 			)
 			.join('|')})`,
 		'g'

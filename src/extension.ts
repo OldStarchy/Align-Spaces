@@ -3,6 +3,7 @@
 import { setTimeout } from 'timers';
 import * as vscode from 'vscode';
 import AlignmentGroup from './AlignmentGroup';
+import { config, loadConfig } from './config';
 import DecorationSet from './DecorationSet';
 import DecorationTypeStore from './DecorationTypeStore';
 import LineData from './LineData';
@@ -95,12 +96,13 @@ import { getLineMatch } from './operatorGroups';
 	wide.
 */
 
-const EXTENSION_ID = 'align-spaces';
+export const EXTENSION_ID = 'align-spaces';
 
-interface ExtensionConfig extends vscode.WorkspaceConfiguration {
+export interface ExtensionConfig extends vscode.WorkspaceConfiguration {
 	'allowed-language-ids': string[] | null;
 	'disallowed-language-ids': string[] | null;
 	delay: number | 'off';
+	'skip-after-first-assignment'?: boolean;
 	// TODO:
 	// [languageId: string]: {
 	// 	'line-comment': string | null;
@@ -185,36 +187,6 @@ export function activate(context: vscode.ExtensionContext) {
 	loadConfig();
 
 	decorateCurrentEditor(false);
-}
-
-const config: {
-	current: ExtensionConfig;
-} = {
-	current: vscode.workspace.getConfiguration(EXTENSION_ID) as ExtensionConfig,
-};
-
-function loadConfig() {
-	config.current = vscode.workspace.getConfiguration(
-		EXTENSION_ID
-	) as ExtensionConfig;
-
-	for (const setting of ['allowed-language-ids', 'disallowed-language-ids']) {
-		if (config.current[setting] !== null) {
-			if (
-				!(config.current[setting] instanceof Array) ||
-				config.current[setting].some((t: any) => typeof t !== 'string')
-			) {
-				(config.current as any)[setting] = null;
-				console.warn(`Invalid "${setting}" setting`);
-			}
-		}
-	}
-
-	if (config.current.delay !== 'off') {
-		if (typeof config.current.delay !== 'number') {
-			config.current.delay = 'off';
-		}
-	}
 }
 
 export const decorationTypes = new DecorationTypeStore();

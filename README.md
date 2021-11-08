@@ -13,7 +13,8 @@ The default keybinding to trigger manual alignment is `ctrl` + `shift` + `\`.
 
 ## Config
 
-Set `"align-spaces.delay"` to a number to wait a number of milliseconds before realigning on typing / document change, or set it to "off" and use the `align-spaces.realign` command to realign.
+Set `"align-spaces.delay"` to a number to wait a number of milliseconds before realigning on typing / document change, or set it to "off" and use the `align-spaces.realign` command to realign.  
+Set `"align-spaces.skip-after-first-assignment": true` to ignore any operators on a line after the first `=`. This can reduce some weird alignment scenarios. [See here for details](https://github.com/OldStarchy/Align-Spaces/issues/18).
 
 ## Features
 

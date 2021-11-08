@@ -2,6 +2,10 @@
 
 All notable changes to the "align-spaces" extension will be documented in this file.
 
+## Minor
+
+-   Add `"align-spaces.skip-after-first-assignment"` configuration. Fixes [#18](https://github.com/OldStarchy/Align-Spaces/issues/18)
+
 ## 0.3.1
 
 -   Fix alignment would fail if `allowed-language-ids` was set
