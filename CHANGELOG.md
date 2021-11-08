@@ -2,7 +2,7 @@
 
 All notable changes to the "align-spaces" extension will be documented in this file.
 
-## Minor
+## 0.4.0
 
 -   Add `"align-spaces.skip-after-first-assignment"` configuration. Fixes [#18](https://github.com/OldStarchy/Align-Spaces/issues/18)
 
