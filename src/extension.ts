@@ -137,11 +137,13 @@ export function activate(context: vscode.ExtensionContext) {
 	) => {
 		const doc = 'document' in event ? event.document : event;
 
-		const openEditor = vscode.window.visibleTextEditors.filter(
+		const openEditor = vscode.window.visibleTextEditors.find(
 			(editor) => editor.document.uri === doc.uri
-		)[0];
+		);
 
-		decorateDebounced(openEditor);
+		if (openEditor) {
+			decorateDebounced(openEditor);
+		}
 	};
 
 	function decorateCurrentEditor(debounce: boolean) {
