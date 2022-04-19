@@ -2,6 +2,10 @@
 
 All notable changes to the "align-spaces" extension will be documented in this file.
 
+## Patch
+
+-   Fix "Cannot read properties of undefined (reading 'document')" (probably)
+
 ## 0.3.1
 
 -   Fix alignment would fail if `allowed-language-ids` was set
