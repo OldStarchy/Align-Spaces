@@ -1,4 +1,4 @@
-import { operatorGroups } from './operatorGroups';
+import { OperatorGroup } from './operatorGroups';
 
 export default interface LinePart {
 	text: string;
@@ -6,7 +6,7 @@ export default interface LinePart {
 	length: number;
 	operator: string;
 	operatorWidth: number;
-	operatorType: keyof typeof operatorGroups;
+	operatorType: OperatorGroup;
 	decorationLocation: number;
 	decoratorChar: string;
 }

@@ -26,7 +26,12 @@ export default class LineData {
 			const width = getPhysicalWidth(part);
 			const operatorWidth = getPhysicalWidth(operator);
 			const decorationLocation = text.length;
-			const operatorType = operatorsGroup[operator];
+
+			const operatorType =
+				operatorsGroup[operator] ??
+				(match.groups?.['attribute'] &&
+					'attribute-' + match.groups?.['attribute']) ??
+				'unknown';
 			const length = part.length;
 
 			parts.push({
@@ -69,7 +74,10 @@ export default class LineData {
 		const lim = Math.min(this.parts.length, other.parts.length);
 
 		for (let i = 0; i < lim; i++) {
-			if (this.parts[i].operatorType !== other.parts[i].operatorType) {
+			const thisType = this.parts[i].operatorType;
+			const otherType = other.parts[i].operatorType;
+
+			if (thisType !== otherType) {
 				return false;
 			}
 		}

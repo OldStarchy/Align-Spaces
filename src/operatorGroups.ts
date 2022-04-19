@@ -6,15 +6,20 @@ export const operatorGroups = {
 	index: ['.', '->', '=>'],
 };
 
+export type OperatorGroup =
+	| keyof typeof operatorGroups
+	| `attribute-${string}`
+	| 'unknown';
+
 export const operatorsGroup: {
-	[operator: string]: keyof typeof operatorGroups;
+	[operator: string]: OperatorGroup;
 } = {};
-(Object.keys(
-	operatorGroups
-) as (keyof typeof operatorGroups)[]).forEach((groupName) =>
-	operatorGroups[groupName].forEach(
-		(operator) => (operatorsGroup[operator] = groupName)
-	)
+
+(Object.keys(operatorGroups) as (keyof typeof operatorGroups)[]).forEach(
+	(groupName) =>
+		operatorGroups[groupName].forEach(
+			(operator) => (operatorsGroup[operator] = groupName)
+		)
 );
 const operatorsSorted = [
 	...operatorGroups.assignment,
@@ -31,6 +36,6 @@ export const getLineMatch = () =>
 					operator.replace(/(.)/g, '\\$1') +
 					(operatorsGroup[operator] === 'binary' ? '(?=\\s)' : '')
 			)
-			.join('|')})`,
+			.join('|')}|(?<attribute>[a-zA-Z-]+)=)`,
 		'g'
 	);
