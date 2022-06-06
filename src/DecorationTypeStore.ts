@@ -1,13 +1,16 @@
-import * as vscode from 'vscode';
+import {
+	DecorationRangeBehavior,
+	Disposable,
+	TextEditorDecorationType,
+	window,
+} from 'vscode';
 
-export default class DecorationTypeStore implements vscode.Disposable {
-	private store: vscode.TextEditorDecorationType[] = [];
+export default class DecorationTypeStore implements Disposable {
+	private store: TextEditorDecorationType[] = [];
 	getForWidth(width: number) {
-		return (this.store[
-			width
-		] ??= vscode.window.createTextEditorDecorationType({
+		return (this.store[width] ??= window.createTextEditorDecorationType({
 			letterSpacing: `${width}ch`,
-			rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
+			rangeBehavior: DecorationRangeBehavior.ClosedClosed,
 		}));
 	}
 

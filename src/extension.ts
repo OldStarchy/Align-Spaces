@@ -101,6 +101,7 @@ interface ExtensionConfig extends vscode.WorkspaceConfiguration {
 	'allowed-language-ids': string[] | null;
 	'disallowed-language-ids': string[] | null;
 	delay: number | 'off';
+	'default-enabled': boolean;
 	// TODO:
 	// [languageId: string]: {
 	// 	'line-comment': string | null;
@@ -110,6 +111,7 @@ interface ExtensionConfig extends vscode.WorkspaceConfiguration {
 const disposables: vscode.Disposable[] = [];
 
 let active = true;
+let activePerDocument = new WeakMap<vscode.TextDocument, boolean>();
 
 export function activate(context: vscode.ExtensionContext) {
 	console.log(`Extension "${EXTENSION_ID}" is now active!`);
@@ -121,6 +123,22 @@ export function activate(context: vscode.ExtensionContext) {
 				decorateCurrentEditor(false);
 			} else {
 				clearDecorations();
+			}
+		}),
+		vscode.commands.registerCommand('align-spaces.toggle-editor', () => {
+			const document = vscode.window.activeTextEditor?.document;
+
+			if (document) {
+				let enabled = activePerDocument.get(document);
+				if (enabled === undefined) {
+					enabled = config.current['default-enabled'];
+				}
+				activePerDocument.set(document, !enabled);
+				if (activePerDocument.get(document)) {
+					decorateCurrentEditor(false);
+				} else {
+					clearDecorations();
+				}
 			}
 		}),
 		vscode.commands.registerCommand('align-spaces.realign', () => {
@@ -273,6 +291,20 @@ function shouldDecorateLanguage(id: string) {
 	return true;
 }
 
+function shouldDecorateEditor(editor: vscode.TextEditor) {
+	const enabled = activePerDocument.get(editor.document);
+
+	if (enabled === undefined) {
+		return config.current['default-enabled'];
+	}
+
+	if (editor.document.lineCount > 1000) {
+		return false;
+	}
+
+	return enabled;
+}
+
 function clearDecorations() {
 	decorationTypes.reset();
 }
@@ -314,6 +346,10 @@ function decorate(editor: vscode.TextEditor) {
 	}
 
 	if (!shouldDecorateLanguage(editor.document.languageId)) {
+		return;
+	}
+
+	if (!shouldDecorateEditor(editor)) {
 		return;
 	}
 
