@@ -1,12 +1,13 @@
 // If you can read this, you are too close
 
-import { setTimeout } from 'timers';
+import {setTimeout} from 'timers';
 import * as vscode from 'vscode';
 import AlignmentGroup from './AlignmentGroup';
 import DecorationSet from './DecorationSet';
 import DecorationTypeStore from './DecorationTypeStore';
+import {ExtensionConfig} from './ExtensionConfig';
 import LineData from './LineData';
-import { getLineMatch } from './operatorGroups';
+import {getLineMatch} from './operatorGroups';
 
 // Hi, If you're reading this, you're probably interested to know how this
 // extension works.
@@ -96,17 +97,6 @@ import { getLineMatch } from './operatorGroups';
 */
 
 const EXTENSION_ID = 'align-spaces';
-
-interface ExtensionConfig extends vscode.WorkspaceConfiguration {
-	'allowed-language-ids': string[] | null;
-	'disallowed-language-ids': string[] | null;
-	delay: number | 'off';
-	'default-enabled': boolean;
-	// TODO:
-	// [languageId: string]: {
-	// 	'line-comment': string | null;
-	// } | null;
-}
 
 const disposables: vscode.Disposable[] = [];
 
@@ -357,6 +347,13 @@ function decorate(editor: vscode.TextEditor) {
 
 	let sourceCode = editor.document.getText();
 
+	const decorators = getDecorationsFor(sourceCode);
+
+	decorators.apply(editor);
+}
+
+export function getDecorationsFor(sourceCode: string): DecorationSet {
+
 	const sourceCodeArr = sourceCode.split('\n');
 
 	const groupBuilder = new ThingBuilder<AlignmentGroup>();
@@ -395,7 +392,7 @@ function decorate(editor: vscode.TextEditor) {
 		.map((group) => group.resolveAlignment())
 		.reduce((all, curr) => all.combine(curr), new DecorationSet());
 
-	decorators.apply(editor);
+	return decorators;
 }
 
 export function deactivate() {
