@@ -1,22 +1,8 @@
 import * as assert from 'assert';
 
-// You can import and use all API from the 'vscode' module
-// as well as import your extension to test it
-import * as vscode from 'vscode';
 import LineData from '../../LineData';
-import { getLineMatch } from '../../operatorGroups';
-// import * as myExtension from '../../extension';
 
 suite('Extension Test Suite', () => {
-	vscode.window.showInformationMessage('Start all tests.');
-
-	test('Sample test', () => {
-		assert.strictEqual(-1, [1, 2, 3].indexOf(5));
-		assert.strictEqual(-1, [1, 2, 3].indexOf(0));
-	});
-
-	const lineMatch = getLineMatch();
-
 	const case1 = 'param isZoneRedundant bool = false';
 	const test1 = LineData.fromString(case1);
 	test('Test Parameters', () => {
@@ -41,7 +27,7 @@ suite('Extension Test Suite', () => {
 	const test3 = LineData.fromString(case3);
 	test('Test Resources', () => {
 		assert.strictEqual(test3.prefix, '');
-		assert.strictEqual(test3.parts[0].text, "resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' ");
+		assert.strictEqual(test3.parts[0].text, '');
 		assert.strictEqual(test3.parts[0].operator, '=');
 		assert.strictEqual(test3.parts[0].operatorType, 'assignment');
 	});
