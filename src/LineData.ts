@@ -42,9 +42,9 @@ export default class LineData {
 		}
 
 		// https://github.com/aNickzz/Align-Spaces/issues/13
-		if (parts[parts.length - 1].operator === ',') {
-			parts.pop();
-		}
+		// if (parts[parts.length - 1].operator === ',') {
+		// 	parts.pop();
+		// }
 
 		let prefix = '';
 
