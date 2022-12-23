@@ -1,12 +1,12 @@
 {
-	"name": "align-spaces",
-	"version": "0.3.1",
-	"displayName": "Align Spaces",
-	"publisher": "OldStarchy",
-	"description": "Align operators without modifying the code",
+	"name": "align-bicep",
+	"version": "0.3.2",
+	"displayName": "Align Bicep",
+	"publisher": "microsoft-dciborow",
+	"description": "Align Bicep files without modifying the code",
 	"icon": "images/icon.png",
 	"repository": {
-		"url": "https://github.com/aNickzz/Align-Spaces"
+		"url": "https://github.com/dciborow/Align-Bicep"
 	},
 	"engines": {
 		"vscode": "^1.53.0"
@@ -25,18 +25,18 @@
 	"contributes": {
 		"commands": [
 			{
-				"command": "align-spaces.toggle",
+				"command": "align-bicep.toggle",
 				"title": "Align Spaces: Toggle"
 			},
 			{
-				"command": "align-spaces.realign",
+				"command": "align-bicep.realign",
 				"title": "Align Spaces: Realign"
 			}
 		],
 		"configuration": {
 			"title": "Align Spaces",
 			"properties": {
-				"align-spaces.allowed-language-ids": {
+				"align-bicep.allowed-language-ids": {
 					"anyOf": [
 						{
 							"type": "array",
@@ -51,7 +51,7 @@
 					"default": null,
 					"description": "If set to an array, only activate for the given languages."
 				},
-				"align-spaces.disallowed-language-ids": {
+				"align-bicep.disallowed-language-ids": {
 					"anyOf": [
 						{
 							"type": "array",
@@ -66,7 +66,7 @@
 					"default": null,
 					"description": "If set to an array, do not activate for the given languages."
 				},
-				"align-spaces.delay": {
+				"align-bicep.delay": {
 					"anyof": [
 						{
 							"type": "number"
@@ -76,18 +76,18 @@
 						}
 					],
 					"default": 0,
-					"description": "If set to a number, this defines the number of milliseconds to wait before realigning. <=0 means no delay.\n\nIf set to `\"off\"`, automatic realignment is prevented and you must run the `align-spaces.realign` command."
+					"description": "If set to a number, this defines the number of milliseconds to wait before realigning. <=0 means no delay.\n\nIf set to `\"off\"`, automatic realignment is prevented and you must run the `align-https://github.com/dciborow/Align-Bicep.realign` command."
 				}
 			}
 		},
 		"keybindings": [
 			{
 				"key": "ctrl+shift+=",
-				"command": "align-spaces.toggle"
+				"command": "align-bicep.toggle"
 			},
 			{
 				"key": "ctrl+shift+\\",
-				"command": "align-spaces.realign"
+				"command": "align-bicep.realign"
 			}
 		],
 		"untrustedWorkspaces": {
@@ -114,5 +114,8 @@
 		"mocha": "^8.2.1",
 		"typescript": "^4.1.3",
 		"vscode-test": "^1.5.0"
+	},
+	"dependencies": {
+		"prettier": "^2.8.1"
 	}
 }

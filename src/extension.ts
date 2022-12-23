@@ -95,7 +95,7 @@ import { getLineMatch } from './operatorGroups';
 	wide.
 */
 
-const EXTENSION_ID = 'align-spaces';
+const EXTENSION_ID = 'align-bicep';
 
 interface ExtensionConfig extends vscode.WorkspaceConfiguration {
 	'allowed-language-ids': string[] | null;
@@ -115,7 +115,7 @@ export function activate(context: vscode.ExtensionContext) {
 	console.log(`Extension "${EXTENSION_ID}" is now active!`);
 
 	disposables.push(
-		vscode.commands.registerCommand('align-spaces.toggle', () => {
+		vscode.commands.registerCommand('align-bicep.toggle', () => {
 			active = !active;
 			if (active) {
 				decorateCurrentEditor(false);
@@ -123,7 +123,7 @@ export function activate(context: vscode.ExtensionContext) {
 				clearDecorations();
 			}
 		}),
-		vscode.commands.registerCommand('align-spaces.realign', () => {
+		vscode.commands.registerCommand('align-bicep.realign', () => {
 			if (active) {
 				decorateCurrentEditor(false);
 			}
@@ -249,7 +249,7 @@ class ThingBuilder<T> {
 
 function obfuscateStrings(str: string) {
 	return str.replace(
-		/(?<!\\)('|"|`)(.*?)(?<!\\)\1/g,
+		/(?<!\\)("|`)(.*?)(?<!\\)\1/g,
 		(_match, quote, content) => quote + content.replace(/./g, ' ') + quote
 	);
 }
@@ -364,5 +364,5 @@ function decorate(editor: vscode.TextEditor) {
 
 export function deactivate() {
 	disposables.forEach((d) => d.dispose());
-	console.log('Extension "align-spaces" deactivated.');
+	console.log('Extension "align-bicep" deactivated.');
 }

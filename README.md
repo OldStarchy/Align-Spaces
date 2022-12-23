@@ -1,4 +1,5 @@
-# Align Spaces
+# Align Bicep
+Based on https://github.com/OldStarchy/Align-Spaces
 
 Aligns certain operators by visually stretching the leading characters, this way you can have groups of aligned code, without having to deal with meaningless whitespace changes in your commits.
 
@@ -13,7 +14,7 @@ The default keybinding to trigger manual alignment is `ctrl` + `shift` + `\`.
 
 ## Config
 
-Set `"align-spaces.delay"` to a number to wait a number of milliseconds before realigning on typing / document change, or set it to "off" and use the `align-spaces.realign` command to realign.
+Set `"align-bicep.delay"` to a number to wait a number of milliseconds before realigning on typing / document change, or set it to "off" and use the `align-bicep.realign` command to realign.
 
 ## Features
 
