@@ -2,7 +2,7 @@ import * as assert from 'assert';
 
 import LineData from '../../LineData';
 
-suite('Extension Test Suite', () => {
+suite('Bicep Test Suite', () => {
 	const case1 = 'param isZoneRedundant bool = false';
 	const test1 = LineData.fromString(case1);
 	test('Test Parameters', () => {
