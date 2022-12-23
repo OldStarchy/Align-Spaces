@@ -42,8 +42,11 @@ jobs:
           add: package.json
 
       - uses: actions/setup-node@v3.5.1
+        if: steps.tag_version.outputs.release_type
       - run: npm ci
+        if: steps.tag_version.outputs.release_type
       - name: Publish to Visual Studio Marketplace
+        if: steps.tag_version.outputs.release_type
         uses: HaaLeo/publish-vscode-extension@v1
         with:
           pat: ${{ secrets.ADO_PAT }}
