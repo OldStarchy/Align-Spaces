@@ -14,7 +14,7 @@ The default keybinding to trigger manual alignment is `ctrl` + `shift` + `\`.
 
 ## Config
 
-Set `"align-spaces.delay"` to a number to wait a number of milliseconds before realigning on typing / document change, or set it to "off" and use the `align-spaces.realign` command to realign.
+Set `"align-bicep.delay"` to a number to wait a number of milliseconds before realigning on typing / document change, or set it to "off" and use the `align-bicep.realign` command to realign.
 
 ## Features
 
