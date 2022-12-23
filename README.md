@@ -1,4 +1,5 @@
-# Align Spaces
+# Align Bicep
+Based on https://github.com/OldStarchy/Align-Spaces
 
 Aligns certain operators by visually stretching the leading characters, this way you can have groups of aligned code, without having to deal with meaningless whitespace changes in your commits.
 
