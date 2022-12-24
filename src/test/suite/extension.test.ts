@@ -26,8 +26,8 @@ suite('Bicep Test Suite', () => {
 	const case3 = "resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = { name: '\${prefix}-id', location: location }";
 	const test3 = LineData.fromString(case3);
 	test('Test Resources', () => {
-		assert.strictEqual(test3.prefix, '');
-		assert.strictEqual(test3.parts[0].text, '');
+		assert.strictEqual(test3.prefix, 'resource userAssignedIdentity \'Microsoft.', 'Resource prefix not equal');
+		assert.strictEqual(test3.parts[0].text, 'resource userAssignedIdentity \'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30\' ', 'Resource text not equal');
 		assert.strictEqual(test3.parts[0].operator, '=');
 		assert.strictEqual(test3.parts[0].operatorType, 'assignment');
 	});
