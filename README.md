@@ -18,102 +18,64 @@ Set `"align-bicep.delay"` to a number to wait a number of milliseconds before re
 
 ## Features
 
-```javascript
-// Aligns operators:
-foo = bar;
-foobar = baz;
+```bicep
+// Aligns parameters:
+param location string
+param name string = uniqueString(resourceGroup().id)
+param resourceGroupName string = resourceGroup().name
+param subnetID string = ''
+param enableVNET bool = false
+param isZoneRedundant bool = false
+param storageAccountType string = isZoneRedundant ? 'Standard_ZRS' : 'Standard_LRS'
 
-foo = foo + bar;
-foobar = foobar - baz;
+// Aligns Nested Values 
 
-// Ignores content in strings
-foo = {
-	foo: 'foobar foobar',
-	foo: 'foo, bar',
-	foo: '\'foo\', "", bar',
-};
+var networkAcls = enableVNET ? {
+  defaultAction: 'Deny'
+  virtualNetworkRules: [
+    {
+      action: 'Allow'
+      id: subnetID
+    }
+  ]
+} : {}
 
-// Knows the difference between assignment, 'binary', and comparison:
-foo = bar;
-foobar = baz;
-if (foobar === bar) {
-	bar = fizzbuzz;
-}
-
-// Groups object assignments:
-foo = new Foo();
-foo.foo = bar;
-foo.foobar = baz;
-
-bar = new Bar();
-bar.foobar = 'foobar';
-bar.baz = foo;
-
-foo.bar = bar;
-
-// Ignores 'unary' operators (those that don't have a space after):
-const dx = x * cos(theta) + -y * sin(theta);
-const dy = x * sin(theta) + y * cos(theta);
-
-// Does alright with commas:
-// prettier-ignore
-const matrix = [
-	100, 50, 0,
-	0, 1, 0,
-	2000, 300, 64,
-];
+// Format Output
+output id string = newOrExisting == 'new' ? newStorageAccount.id : storageAccount.id
+output blobStorageConnectionString string = blobStorageConnectionString
 ```
 
 Will appear visually as
 
 <!-- prettier-ignore -->
-```javascript
-// Aligns operators:
-foo    = bar;
-foobar = baz;
+```bicep
+param location 			 string
+param name 				 string = uniqueString(resourceGroup().id)
+param resourceGroupName  string = resourceGroup().name
+param subnetID 		 	 string = ''
+param enableVNET 		   bool = false
+param isZoneRedundant 	   bool = false
+param storageAccountType string = isZoneRedundant ? 'Standard_ZRS' : 'Standard_LRS'
 
-foo    = foo    + bar;
-foobar = foobar - baz;
+// Aligns Nested Values 
 
-// Ignores content in strings
-foo = {
-	foo: 'foobar foobar foobar',
-	foo: 'foo, bar',
-	foo: '\'foo\', "", bar',
-}
+var networkAcls = enableVNET ? {
+  defaultAction      : 'Deny'
+  virtualNetworkRules: [
+    {
+      action: 'Allow'
+      id    : subnetID
+    }
+  ]
+} : {}
 
-// Knows the difference between assignment, 'binary', and comparison:
-foo    = bar;
-foobar = baz;
-if (foobar === bar) {
-	bar = fizzbuzz;
-}
-
-// Groups object assignments:
-foo = new Foo();
-foo.foo    = bar;
-foo.foobar = baz;
-
-bar = new Bar();
-bar.foobar = 'foobar';
-bar.baz    = foo;
-
-foo.bar = bar;
-
-// Ignores 'unary' operators (those that don't have a space after):
-const dx = x * cos(theta) + -y * sin(theta);
-const dy = x * sin(theta) + y  * cos(theta);
-
-// Does alright with commas:
-// prettier-ignore
-const matrix = [
-	100 , 50 , 0,
-	0   , 1  , 0,
-	2000, 300, 64,
-];
+// Format Output
+output id                          string = newOrExisting == 'new' ? newStorageAccount.id : storageAccount.id
+output blobStorageConnectionString string = blobStorageConnectionString
 ```
 
 This works by adjusting the width of the character.
+The source file is not changed, nor are extra characters shown in the browser (so auto-format will not try to undo the formatting).
 
 ## Known Issues
 
