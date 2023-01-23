@@ -4,18 +4,22 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
   yarn-test:
-    runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: 16.x
       - run: yarn install
+      - run: xvfb-run -a yarn test
+        if: runner.os == 'Linux'
       - run: yarn test
+        if: runner.os != 'Linux'
