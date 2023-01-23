@@ -1,0 +1,26 @@
+import { Alignment } from './Alignment';
+
+export function applyAlignments(input: string, alignments: Alignment[]): string {
+	const rows = input.split('\n');
+
+	const rowsWithAlignments = rows.map((row, i) => {
+		const alignment = alignments.find((alignment) => alignment.lineNumber === i);
+
+		if (!alignment) {
+			return row;
+		}
+
+		const adjustments = alignment.adjustments;
+
+		return adjustments.reduce((row, adjustment) => {
+			const { column, width } = adjustment;
+
+			const left = row.slice(0, column);
+			const right = row.slice(column);
+
+			return left + ' '.repeat(width) + right;
+		}, row);
+	});
+
+	return rowsWithAlignments.join('\n');
+}
