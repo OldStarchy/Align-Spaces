@@ -10,17 +10,19 @@ export function applyAlignments(input: string, alignments: Alignment[]): string 
 			return row;
 		}
 
-		const adjustments = alignment.adjustments;
-
-		return adjustments.reduce((row, adjustment) => {
-			const { column, width } = adjustment;
-
-			const left = row.slice(0, column);
-			const right = row.slice(column);
-
-			return left + ' '.repeat(width) + right;
-		}, row);
+		return applyAlignmentsToLine(row, alignment.adjustments);
 	});
 
 	return rowsWithAlignments.join('\n');
+}
+
+function applyAlignmentsToLine(line: string, adjustments: Alignment['adjustments']): string {
+	return adjustments.reduce((row, adjustment) => {
+		const { column, width } = adjustment;
+
+		const left = row.slice(0, column);
+		const right = row.slice(column);
+
+		return left + ' '.repeat(width) + right;
+	}, line);
 }
