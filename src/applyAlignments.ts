@@ -17,12 +17,14 @@ export function applyAlignments(input: string, alignments: Alignment[]): string 
 }
 
 function applyAlignmentsToLine(line: string, adjustments: Alignment['adjustments']): string {
-	return adjustments.reduce((row, adjustment) => {
-		const { column, width } = adjustment;
+	return adjustments
+		.sort((a, b) => b.column - a.column)
+		.reduce((row, adjustment) => {
+			const { column, width } = adjustment;
 
-		const left = row.slice(0, column);
-		const right = row.slice(column);
+			const left = row.slice(0, column);
+			const right = row.slice(column);
 
-		return left + ' '.repeat(width) + right;
-	}, line);
+			return left + ' '.repeat(width) + right;
+		}, line);
 }

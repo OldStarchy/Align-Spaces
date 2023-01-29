@@ -1,10 +1,19 @@
 import { RuleSet } from './RuleSet';
+import bicepRuleSet from './RuleSets/bicep';
+import typescriptRuleSet from './RuleSets/typescript';
+
+const sets: Record<string, RuleSet> = {
+	typescript: typescriptRuleSet,
+	bicep: bicepRuleSet,
+};
 
 export async function getRulesForLanguage(languageId: string): Promise<RuleSet> {
 	//TODO: replace this dynamic import voodoo with user settings/config
-	const file = `./RuleSets/${languageId}`;
 
-	const defaultExport = await import(file);
+	const set = sets[languageId];
+	if (set) {
+		return set;
+	}
 
-	return defaultExport.default as RuleSet;
+	throw new Error(`no language matchers for ${languageId}`);
 }
