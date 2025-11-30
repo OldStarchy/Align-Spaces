@@ -1,9 +1,9 @@
 {
-	"require": [
-		"tsx"
-	],
+	"require": ["tsx"],
 	"spec": "src/**/*.test.ts",
 	"ignore": "src/web/**",
 	"ui": "tdd",
-	"color": true
+	"color": true,
+	"watch-files": ["src/**/*.ts"],
+	"watch-ignore": ["src/web/**"]
 }

@@ -22,6 +22,7 @@
   "scripts": {
     "test": "yarn run test:unit && yarn run test:web",
     "test:unit": "mocha",
+    "test:unit:watch": "mocha --watch",
     "test:web": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. --extensionTestsPath=dist/web/test/suite/extensionTests.js",
     "pretest:web": "yarn run compile-web",
     "vscode:prepublish": "yarn run package-web",
