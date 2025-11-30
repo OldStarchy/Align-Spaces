@@ -20,8 +20,10 @@
     ]
   },
   "scripts": {
-    "test": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. --extensionTestsPath=dist/web/test/suite/extensionTests.js",
-    "pretest": "yarn run compile-web",
+    "test": "yarn run test:unit && yarn run test:web",
+    "test:unit": "mocha",
+    "test:web": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. --extensionTestsPath=dist/web/test/suite/extensionTests.js",
+    "pretest:web": "yarn run compile-web",
     "vscode:prepublish": "yarn run package-web",
     "compile-web": "yarn run check-types && yarn run lint && node esbuild.js",
     "watch-web": "npm-run-all -p watch-web:*",
@@ -44,7 +46,9 @@
     "glob": "^11.0.3",
     "mocha": "^11.7.5",
     "npm-run-all": "^4.1.5",
-    "typescript-eslint": "^8.46.3",
-    "typescript": "^5.9.3"
+    "prettier": "^3.7.3",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.3"
   }
 }

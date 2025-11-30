@@ -1,0 +1,9 @@
+{
+	"require": [
+		"tsx"
+	],
+	"spec": "src/**/*.test.ts",
+	"ignore": "src/web/**",
+	"ui": "tdd",
+	"color": true
+}

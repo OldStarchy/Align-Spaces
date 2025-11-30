@@ -1,0 +1,25 @@
+{
+	"trailingComma": "all",
+	"semi": true,
+	"htmlWhitespaceSensitivity": "strict",
+	"tabWidth": 4,
+	"useTabs": true,
+	"singleQuote": true,
+	"endOfLine": "lf",
+	"overrides": [
+		{
+			"files": ["*.yml", "*.yaml", "package.json"],
+			"options": {
+				"tabWidth": 2,
+				"useTabs": false
+			}
+		},
+		{
+			"files": ["*.md"],
+			"options": {
+				"tabWidth": 4,
+				"useTabs": false
+			}
+		}
+	]
+}
