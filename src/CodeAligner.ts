@@ -122,7 +122,9 @@ class CodeAligner {
 				}
 
 				if (regex.flags.includes('d')) {
-					index = match.indices![group][0];
+					index = (
+						match as unknown as { indices: [number, number][] }
+					).indices![group][0];
 				} else {
 					index = line.indexOf(match[group]);
 				}
@@ -332,7 +334,43 @@ class CodeAligner {
 			});
 		});
 
+		decorations.sort((a, b) => b.line - a.line);
+
+		let line = -1;
+		let lineDecorations: Alignment[] = [];
+
+		decorations.forEach((decoration) => {
+			if (decoration.line !== line) {
+				if (lineDecorations.length > 0) {
+					this.preventDoubleCounting(lineDecorations);
+				}
+
+				line = decoration.line;
+				lineDecorations = [];
+			}
+
+			lineDecorations.push(decoration);
+		});
+
+		if (lineDecorations.length > 0) {
+			this.preventDoubleCounting(lineDecorations);
+		}
+
 		return decorations;
+	}
+
+	private preventDoubleCounting(mut_lineDecorations: Alignment[]): void {
+		//sort left to right
+		mut_lineDecorations.sort((a, b) => a.col - b.col);
+
+		let totalOffset = 0;
+		mut_lineDecorations.forEach((decoration) => {
+			// remove offset caused by prior decorations
+			decoration.width -= totalOffset;
+
+			// account for this decoration's width in future decorations
+			totalOffset += decoration.width;
+		});
 	}
 
 	applyAlignmentsAsSpaces(input: string, alignments: Alignment[]): string {
@@ -347,19 +385,7 @@ class CodeAligner {
 				return line;
 			}
 
-			//sort left to right
-			lineDecorations.sort((a, b) => a.col - b.col);
-
-			let totalOffset = 0;
-			lineDecorations.forEach((decoration) => {
-				// remove offset caused by prior decorations
-				decoration.width -= totalOffset;
-
-				// account for this decoration's width in future decorations
-				totalOffset += decoration.width;
-			});
-
-			lineDecorations.reverse();
+			lineDecorations.sort((a, b) => b.col - a.col);
 
 			let end = line.length;
 			let parts: string[] = [];

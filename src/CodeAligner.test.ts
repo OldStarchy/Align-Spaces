@@ -522,7 +522,7 @@ param p4PublicIPName string = 'hxcorepip'
 		const codeAligner = new CodeAligner({
 			assignmentMarkers: [
 				{
-					regex: /param\s+\S+\s+(string|int|bool)(\s*=)?/d,
+					regex: /param\s+\S+\s+(string|int|bool)(\s*=)?/,
 					group: 1,
 					mode: 'before',
 					identifier: 'param',
@@ -560,7 +560,7 @@ param p4PublicIPName        string = 'hxcorepip'
 			skipLinesRegex: /^\s*@/,
 			assignmentMarkers: [
 				{
-					regex: /param\s+\S+\s+(string|int|bool)(?:\s*=)?/d,
+					regex: /param\s+\S+\s+(string|int|bool)(?:\s*=)?/,
 					group: 1,
 					mode: 'before',
 					identifier: 'param',
@@ -620,6 +620,22 @@ ____after__;
 		});
 		const alignments = codeAligner.computeAlignments(input);
 		const output = codeAligner.applyAlignmentsAsSpaces(input, alignments);
+
+		assert.strictEqual(output, expected);
+	});
+
+	test('this specific case i noticed', () => {
+		const input = `\
+let foobar = 10; //foobar
+let foo = 2000; //bazbar
+`;
+
+		const expected = `\
+let foobar = 10;   //foobar
+let foo    = 2000; //bazbar
+`;
+
+		const output = performAlignment(input);
 
 		assert.strictEqual(output, expected);
 	});
