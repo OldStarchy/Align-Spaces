@@ -1,15 +1,25 @@
 {
   "name": "align-spaces",
-  "displayName": "Align-Spaces",
+  "version": "0.4.0-alpha.1",
+  "displayName": "Align Spaces",
+  "publisher": "OldStarchy",
   "description": "Align operators without modifying the code",
-  "version": "0.0.1",
+  "icon": "images/icon.png",
+  "repository": {
+    "url": "https://github.com/OldStarchy/Align-Spaces"
+  },
   "engines": {
     "vscode": "^1.106.1"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "extensionKind": [
+    "ui"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "browser": "./dist/web/extension.js",
   "contributes": {
     "commands": [
