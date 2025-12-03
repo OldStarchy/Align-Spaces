@@ -1,3 +1,5 @@
+import TabPoint, { TabPointCollection } from './TabPoint';
+
 export type Alignment = {
 	line: number;
 	col: number;
@@ -6,10 +8,7 @@ export type Alignment = {
 
 type AssignmentGroup = {
 	maxAssignmentStartPos: number;
-	alignments: {
-		line: number;
-		col: number;
-	}[];
+	tabPoint: TabPoint;
 	prefix: string;
 	identifier: string | undefined;
 	groupEndMarker?: string;
@@ -167,7 +166,7 @@ class CodeAligner {
 
 		let assignmentGroup: AssignmentGroup = {
 			maxAssignmentStartPos: 0,
-			alignments: [],
+			tabPoint: new TabPoint(),
 			prefix: '',
 			identifier: undefined,
 			parent: null,
@@ -176,19 +175,19 @@ class CodeAligner {
 
 		let commentGroup = {
 			maxCommentStartPos: 0,
-			alignments: [] as { line: number; col: number }[],
+			tabPoint: new TabPoint(),
 		};
 		const commentGroups: (typeof commentGroup)[] = [];
 
 		function commitAssignment() {
-			if (assignmentGroup.alignments.length > 0) {
+			if (!assignmentGroup.tabPoint.isEmpty()) {
 				const parent = assignmentGroup.parent;
 				const groupEndMarker = assignmentGroup.groupEndMarker;
 
 				assignmentGroups.push(assignmentGroup);
 				assignmentGroup = {
 					maxAssignmentStartPos: 0,
-					alignments: [],
+					tabPoint: new TabPoint(),
 					prefix: '',
 					identifier: undefined,
 					parent,
@@ -198,11 +197,11 @@ class CodeAligner {
 		}
 
 		function commitComment() {
-			if (commentGroup.alignments.length > 0) {
+			if (!commentGroup.tabPoint.isEmpty()) {
 				commentGroups.push(commentGroup);
 				commentGroup = {
 					maxCommentStartPos: 0,
-					alignments: [],
+					tabPoint: new TabPoint(),
 				};
 			}
 		}
@@ -253,9 +252,9 @@ class CodeAligner {
 							assignmentIndex.index;
 					}
 
-					assignmentGroup.alignments.push({
+					assignmentGroup.tabPoint.add({
 						line: lineNo,
-						col: assignmentIndex.index,
+						character: assignmentIndex.index,
 					});
 				}
 
@@ -266,9 +265,9 @@ class CodeAligner {
 						commentGroup.maxCommentStartPos = inlineCommentIndex;
 					}
 
-					commentGroup.alignments.push({
+					commentGroup.tabPoint.add({
 						line: lineNo,
-						col: inlineCommentIndex,
+						character: inlineCommentIndex,
 					});
 				}
 			}
@@ -283,7 +282,7 @@ class CodeAligner {
 				if (line.includes(open)) {
 					assignmentGroup = {
 						maxAssignmentStartPos: 0,
-						alignments: [],
+						tabPoint: new TabPoint(),
 						prefix: assignmentGroup.prefix,
 						identifier: assignmentGroup.identifier,
 						parent: assignmentGroup,
@@ -296,67 +295,25 @@ class CodeAligner {
 		commitAssignment();
 		commitComment();
 
-		const decorations: Alignment[] = [];
-
+		const collection = new TabPointCollection();
 		assignmentGroups.forEach((group) => {
-			group.alignments.forEach(({ line, col }) => {
-				const spacesToAdd = group.maxAssignmentStartPos - col;
-
-				if (spacesToAdd < 0) {
-					throw new Error(
-						'Negative spaces to add, this should not happen',
-					);
-				}
-
-				if (spacesToAdd === 0) {
-					return;
-				}
-
-				decorations.push({ line, col, width: spacesToAdd });
-			});
+			collection.add(group.tabPoint);
 		});
-
 		commentGroups.forEach((group) => {
-			group.alignments.forEach(({ line, col }) => {
-				const spacesToAdd = group.maxCommentStartPos - col;
-
-				if (spacesToAdd < 0) {
-					throw new Error(
-						'Negative spaces to add, this should not happen',
-					);
-				}
-
-				if (spacesToAdd === 0) {
-					return;
-				}
-
-				decorations.push({ line, col, width: spacesToAdd });
-			});
+			collection.add(group.tabPoint);
 		});
 
-		decorations.sort((a, b) => b.line - a.line);
-
-		let line = -1;
-		let lineDecorations: Alignment[] = [];
-
-		decorations.forEach((decoration) => {
-			if (decoration.line !== line) {
-				if (lineDecorations.length > 0) {
-					this.preventDoubleCounting(lineDecorations);
-				}
-
-				line = decoration.line;
-				lineDecorations = [];
-			}
-
-			lineDecorations.push(decoration);
-		});
-
-		if (lineDecorations.length > 0) {
-			this.preventDoubleCounting(lineDecorations);
-		}
-
-		return decorations;
+		return collection
+			.resolve()
+			.entries()
+			.flatMap(([line, decors]) => {
+				return decors.map((decoration) => ({
+					line,
+					col: decoration.col,
+					width: decoration.width,
+				}));
+			})
+			.toArray();
 	}
 
 	private preventDoubleCounting(mut_lineDecorations: Alignment[]): void {
