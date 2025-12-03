@@ -1,10 +1,23 @@
 interface Position {
 	line: number;
 	character: number;
+
+	/**
+	 * Decorations can insert space before or after a character.
+	 *
+	 * here, 'before' means the decoration is attached to the character to the left
+	 * of this index and that character should grow to the right.
+	 * 'after' means the decoration is attached to the character to the right
+	 * of this index and that character should grow to the left.
+	 */
+	attach: 'before' | 'after';
 }
 
 class TabPoint {
-	private positions: Map<number, number> = new Map();
+	private positions: Map<
+		number,
+		{ character: number; attach: 'before' | 'after' }
+	> = new Map();
 
 	add(position: Position) {
 		if (this.positions.has(position.line)) {
@@ -13,34 +26,48 @@ class TabPoint {
 			);
 		}
 
-		this.positions.set(position.line, position.character);
+		this.positions.set(position.line, {
+			character: position.character,
+			attach: position.attach,
+		});
 	}
 
 	isEmpty(): boolean {
 		return this.positions.size === 0;
 	}
 
-	resolve(): Map<number, { col: number; width: number }> {
+	resolve(): Map<
+		number,
+		{ col: number; width: number; attach: 'before' | 'after' }
+	> {
 		if (this.positions.size <= 1) {
 			return new Map();
 		}
-		const max = Math.max(...this.positions.values());
-		const alignments = new Map<number, { col: number; width: number }>();
+		const max = Math.max(
+			...this.positions.values().map((p) => p.character),
+		);
+		const alignments = new Map<
+			number,
+			{ col: number; width: number; attach: 'before' | 'after' }
+		>();
 
-		for (const [line, character] of this.positions) {
+		for (const [line, { character, attach }] of this.positions) {
 			if (character === max) {
 				continue;
 			}
 			alignments.set(line, {
 				col: character,
 				width: max - character,
+				attach,
 			});
 		}
 
 		return alignments;
 	}
 
-	getPositions(): IterableIterator<[number, number]> {
+	getPositions(): IterableIterator<
+		[number, { character: number; attach: 'before' | 'after' }]
+	> {
 		return this.positions.entries();
 	}
 }
@@ -49,6 +76,7 @@ interface Mark {
 	markGroup: MarkGroup;
 	line: number;
 	col: number;
+	attach: 'before' | 'after';
 	visualCol?: number;
 	parents?: Mark[] | null;
 }
@@ -61,7 +89,10 @@ export class TabPointCollection {
 		this.points.add(point);
 	}
 
-	resolve(): Map<number, { col: number; width: number }[]> {
+	resolve(): Map<
+		number,
+		{ col: number; width: number; attach: 'before' | 'after' }[]
+	> {
 		const marksByLine = new Map<number, Mark[]>();
 		const marksByCol: MarkGroup[] = [];
 
@@ -69,8 +100,11 @@ export class TabPointCollection {
 			const markGroup: MarkGroup = [];
 			marksByCol.push(markGroup);
 
-			for (const [line, col] of point.getPositions()) {
-				const mark = { markGroup, line, col };
+			for (const [
+				line,
+				{ character: col, attach },
+			] of point.getPositions()) {
+				const mark = { markGroup, line, col, attach };
 
 				if (!marksByLine.has(line)) {
 					marksByLine.set(line, []);
@@ -130,7 +164,10 @@ export class TabPointCollection {
 			resolveGroup(group);
 		}
 
-		const results = new Map<number, { col: number; width: number }[]>();
+		const results = new Map<
+			number,
+			{ col: number; width: number; attach: 'before' | 'after' }[]
+		>();
 
 		for (const [line, marks] of marksByLine) {
 			let inserted = 0;
@@ -142,7 +179,9 @@ export class TabPointCollection {
 					if (!results.has(line)) {
 						results.set(line, []);
 					}
-					results.get(line)!.push({ col: mark.col, width });
+					results
+						.get(line)!
+						.push({ col: mark.col, width, attach: mark.attach });
 					inserted += width;
 				}
 			}

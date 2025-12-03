@@ -5,6 +5,7 @@ class Position {
 	constructor(
 		public line: number,
 		public character: number,
+		public attach: 'before' | 'after',
 	) {}
 }
 
@@ -16,16 +17,16 @@ suite('TabPoint', () => {
 	test('can add a position', () => {
 		const a = new TabPoint();
 
-		a.add(new Position(1, 2));
+		a.add(new Position(1, 2, 'before'));
 	});
 
 	test('rejects two positions on the same line', () => {
 		const a = new TabPoint();
 
-		a.add(new Position(1, 2));
+		a.add(new Position(1, 2, 'before'));
 
 		assert.throws(() => {
-			a.add(new Position(1, 4));
+			a.add(new Position(1, 4, 'before'));
 		});
 	});
 
@@ -34,7 +35,7 @@ suite('TabPoint', () => {
 
 		assert.strictEqual(a.isEmpty(), true);
 
-		a.add(new Position(0, 0));
+		a.add(new Position(0, 0, 'before'));
 
 		assert.strictEqual(a.isEmpty(), false);
 	});
@@ -42,8 +43,8 @@ suite('TabPoint', () => {
 	test('A single set tab point aligns correctly', () => {
 		const a = new TabPoint();
 
-		a.add(new Position(0, 4));
-		a.add(new Position(1, 2));
+		a.add(new Position(0, 4, 'before'));
+		a.add(new Position(1, 2, 'before'));
 
 		const col = new TabPointCollection();
 		col.add(a);
@@ -51,16 +52,17 @@ suite('TabPoint', () => {
 
 		assert.deepStrictEqual(
 			alignments,
-			new Map<number, { col: number; width: number }[]>([
-				[1, [{ col: 2, width: 2 }]],
-			]),
+			new Map<
+				number,
+				{ col: number; width: number; attach: 'before' | 'after' }[]
+			>([[1, [{ col: 2, width: 2, attach: 'before' }]]]),
 		);
 	});
 
 	test('A single point on a tab has no alignment needed', () => {
 		const a = new TabPoint();
 
-		a.add(new Position(3, 5));
+		a.add(new Position(3, 5, 'before'));
 
 		const col = new TabPointCollection();
 		col.add(a);
@@ -68,7 +70,10 @@ suite('TabPoint', () => {
 
 		assert.deepStrictEqual(
 			alignments,
-			new Map<number, { col: number; width: number }[]>(),
+			new Map<
+				number,
+				{ col: number; width: number; attach: 'before' | 'after' }[]
+			>(),
 		);
 	});
 
@@ -84,13 +89,13 @@ suite('TabPoint', () => {
 		 *           : 10
 		 */
 
-		a.add(new Position(0, 4));
-		a.add(new Position(1, 5));
+		a.add(new Position(0, 4, 'before'));
+		a.add(new Position(1, 5, 'before'));
 
 		const b = new TabPoint();
 
-		b.add(new Position(1, 13));
-		b.add(new Position(2, 10));
+		b.add(new Position(1, 13, 'before'));
+		b.add(new Position(2, 10, 'before'));
 
 		const points = new TabPointCollection();
 		points.add(a);
@@ -100,9 +105,12 @@ suite('TabPoint', () => {
 
 		assert.deepStrictEqual(
 			alignments,
-			new Map<number, { col: number; width: number }[]>([
-				[0, [{ col: 4, width: 1 }]],
-				[2, [{ col: 10, width: 3 }]],
+			new Map<
+				number,
+				{ col: number; width: number; attach: 'before' | 'after' }[]
+			>([
+				[0, [{ col: 4, width: 1, attach: 'before' }]],
+				[2, [{ col: 10, width: 3, attach: 'before' }]],
 			]),
 		);
 	});
@@ -119,13 +127,13 @@ suite('TabPoint', () => {
 		 *           : 10
 		 */
 
-		a.add(new Position(0, 5));
-		a.add(new Position(1, 4));
+		a.add(new Position(0, 5, 'before'));
+		a.add(new Position(1, 4, 'before'));
 
 		const b = new TabPoint();
 
-		b.add(new Position(1, 12));
-		b.add(new Position(2, 10));
+		b.add(new Position(1, 12, 'before'));
+		b.add(new Position(2, 10, 'before'));
 
 		const points = new TabPointCollection();
 		points.add(a);
@@ -135,9 +143,12 @@ suite('TabPoint', () => {
 
 		assert.deepStrictEqual(
 			alignments,
-			new Map<number, { col: number; width: number }[]>([
-				[1, [{ col: 4, width: 1 }]],
-				[2, [{ col: 10, width: 3 }]],
+			new Map<
+				number,
+				{ col: number; width: number; attach: 'before' | 'after' }[]
+			>([
+				[1, [{ col: 4, width: 1, attach: 'before' }]],
+				[2, [{ col: 10, width: 3, attach: 'before' }]],
 			]),
 		);
 	});
@@ -166,19 +177,19 @@ suite('TabPoint', () => {
 
 		// =
 		const a = new TabPoint();
-		a.add(new Position(0, 5));
-		a.add(new Position(1, 3));
+		a.add(new Position(0, 5, 'before'));
+		a.add(new Position(1, 3, 'before'));
 
 		// |
 		const b = new TabPoint();
-		b.add(new Position(1, 9));
-		b.add(new Position(2, 4));
+		b.add(new Position(1, 9, 'before'));
+		b.add(new Position(2, 4, 'before'));
 
 		// :
 		const c = new TabPoint();
-		c.add(new Position(0, 11));
-		c.add(new Position(1, 15));
-		c.add(new Position(2, 12));
+		c.add(new Position(0, 11, 'before'));
+		c.add(new Position(1, 15, 'before'));
+		c.add(new Position(2, 12, 'before'));
 
 		const points = new TabPointCollection();
 		points.add(a);
@@ -189,16 +200,19 @@ suite('TabPoint', () => {
 
 		assert.deepStrictEqual(
 			alignments,
-			new Map<number, { col: number; width: number }[]>([
-				[0, [{ col: 11, width: 8 }]],
+			new Map<
+				number,
+				{ col: number; width: number; attach: 'before' | 'after' }[]
+			>([
+				[0, [{ col: 11, width: 8, attach: 'before' }]],
 				[
 					1,
 					[
-						{ col: 3, width: 2 },
-						{ col: 15, width: 2 },
+						{ col: 3, width: 2, attach: 'before' },
+						{ col: 15, width: 2, attach: 'before' },
 					],
 				],
-				[2, [{ col: 4, width: 7 }]],
+				[2, [{ col: 4, width: 7, attach: 'before' }]],
 			]),
 		);
 	});
@@ -206,13 +220,13 @@ suite('TabPoint', () => {
 	test('Throws on recursively dependent tab points', function () {
 		const a = new TabPoint();
 
-		a.add(new Position(0, 0));
-		a.add(new Position(1, 4));
+		a.add(new Position(0, 0, 'before'));
+		a.add(new Position(1, 4, 'before'));
 
 		const b = new TabPoint();
 
-		b.add(new Position(0, 4));
-		b.add(new Position(1, 0));
+		b.add(new Position(0, 4, 'before'));
+		b.add(new Position(1, 0, 'before'));
 
 		const points = new TabPointCollection();
 		points.add(a);

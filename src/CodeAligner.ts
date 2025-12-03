@@ -4,6 +4,7 @@ export type Alignment = {
 	line: number;
 	col: number;
 	width: number;
+	attach: 'before' | 'after';
 };
 
 type AssignmentGroup = {
@@ -91,15 +92,19 @@ class CodeAligner {
 		return match.groups!['indent'];
 	}
 
-	getAssignmentIndex(
-		line: string,
-	): { index: number; identifier: string | undefined } | null {
+	getAssignmentIndex(line: string): {
+		index: number;
+		identifier: string | undefined;
+		mode: 'before' | 'after';
+	} | null {
 		let min = Number.POSITIVE_INFINITY;
 		let identifier: string | undefined = undefined;
+		let mode: 'before' | 'after' = 'before';
 
 		this.assignmentMarkers.forEach((def) => {
 			let index = 0;
 			let ident: string | undefined = undefined;
+			let mod: 'before' | 'after' = 'before';
 
 			if ('marker' in def) {
 				const { marker, mode, identifier: id } = def;
@@ -112,6 +117,7 @@ class CodeAligner {
 					index += marker.length;
 				}
 
+				mod = mode;
 				ident = id;
 			} else {
 				const { regex, group, mode, identifier: id } = def;
@@ -132,11 +138,13 @@ class CodeAligner {
 					index += match[group].length;
 				}
 
+				mod = mode;
 				ident = id;
 			}
 
 			if (index < min) {
 				min = index;
+				mode = mod;
 				identifier = ident;
 			}
 		});
@@ -145,7 +153,7 @@ class CodeAligner {
 			return null;
 		}
 
-		return { index: min, identifier: identifier };
+		return { index: min, identifier, mode };
 	}
 
 	getInlineCommentIndex(line: string): number | null {
@@ -255,6 +263,10 @@ class CodeAligner {
 					assignmentGroup.tabPoint.add({
 						line: lineNo,
 						character: assignmentIndex.index,
+						attach:
+							assignmentIndex.mode === 'before'
+								? 'after'
+								: 'before',
 					});
 				}
 
@@ -268,6 +280,7 @@ class CodeAligner {
 					commentGroup.tabPoint.add({
 						line: lineNo,
 						character: inlineCommentIndex,
+						attach: 'after' as const,
 					});
 				}
 			}
@@ -311,23 +324,10 @@ class CodeAligner {
 					line,
 					col: decoration.col,
 					width: decoration.width,
+					attach: decoration.attach,
 				}));
 			})
 			.toArray();
-	}
-
-	private preventDoubleCounting(mut_lineDecorations: Alignment[]): void {
-		//sort left to right
-		mut_lineDecorations.sort((a, b) => a.col - b.col);
-
-		let totalOffset = 0;
-		mut_lineDecorations.forEach((decoration) => {
-			// remove offset caused by prior decorations
-			decoration.width -= totalOffset;
-
-			// account for this decoration's width in future decorations
-			totalOffset += decoration.width;
-		});
 	}
 
 	applyAlignmentsAsSpaces(input: string, alignments: Alignment[]): string {
@@ -357,13 +357,15 @@ class CodeAligner {
 					continue;
 				}
 
-				const segment = line.substring(decoration.col, end);
+				const col = decoration.col;
+
+				const segment = line.substring(col, end);
 				parts.unshift(segment);
 
 				const spaces = ' '.repeat(decoration.width);
 				parts.unshift(spaces);
 
-				end = decoration.col;
+				end = col;
 			}
 			const firstSegment = line.substring(0, end);
 			parts.unshift(firstSegment);
@@ -372,6 +374,46 @@ class CodeAligner {
 		});
 
 		return newLines.join('\n');
+	}
+
+	debugPrintAlignments(input: string, alignments: Alignment[]): string {
+		const out: string[] = [];
+
+		const lines = input.split('\n');
+
+		lines.forEach((line, index) => {
+			out.push(line);
+
+			const lineDecorations = alignments.filter(
+				(dec) => dec.line === index,
+			);
+
+			if (lineDecorations.length === 0) {
+				out.push('');
+				return;
+			}
+
+			let markerLine = '';
+
+			for (const decoration of lineDecorations) {
+				const col = decoration.col;
+				const width = decoration.width;
+				const attach = decoration.attach;
+
+				if (col > markerLine.length) {
+					markerLine += ' '.repeat(col - markerLine.length);
+				}
+
+				if (attach === 'before') {
+					markerLine += '|' + '>'.repeat(width);
+				} else {
+					markerLine += '<'.repeat(width) + '|';
+				}
+			}
+			out.push(markerLine);
+		});
+
+		return out.join('\n');
 	}
 }
 

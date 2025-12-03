@@ -9,6 +9,16 @@ function performAlignment(input: string): string {
 	return codeAligner.applyAlignmentsAsSpaces(input, alignments);
 }
 
+function debugPrint(input: string): string {
+	const codeAligner = new CodeAligner();
+
+	const alignments = codeAligner.computeAlignments(input);
+
+	const out = codeAligner.applyAlignmentsAsSpaces(input, alignments);
+
+	return codeAligner.debugPrintAlignments(out, alignments);
+}
+
 suite('Alignment', () => {
 	test('CodeAligner constructs without error', () => {
 		new CodeAligner();
@@ -26,6 +36,22 @@ const foobar = 2;
 `;
 
 		const output = performAlignment(input);
+
+		assert.strictEqual(output, expected);
+	});
+
+	test('Align assignments to the left', () => {
+		const input = `\
+const foo = 1;
+const foobar = 2;`;
+
+		const expected = `\
+const foo    = 1;
+          <<<|
+const foobar = 2;
+`;
+
+		const output = debugPrint(input);
 
 		assert.strictEqual(output, expected);
 	});
@@ -246,6 +272,31 @@ const obj = {
 `;
 
 		const output = performAlignment(input);
+
+		assert.strictEqual(output, expected);
+	});
+
+	test('Align assignments to the right', () => {
+		const input = `\
+const obj = {
+    a: 1,
+    foobar: 2,
+    longerKey: 3,
+};`;
+
+		const expected = `\
+const obj = {
+
+    a:         1,
+     |>>>>>>>>
+    foobar:    2,
+          |>>>
+    longerKey: 3,
+
+};
+`;
+
+		const output = debugPrint(input);
 
 		assert.strictEqual(output, expected);
 	});

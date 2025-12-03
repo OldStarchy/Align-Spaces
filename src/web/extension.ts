@@ -29,11 +29,11 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const aligner = new CodeAligner();
 
-	const decoratorCache = new Map<number, vscode.TextEditorDecorationType>();
-	const getDecoratorForWidth = (width: number) => {
-		if (!decoratorCache.has(width)) {
+	const decoratorCache = new Map<string, vscode.TextEditorDecorationType>();
+	const getDecoratorForWidth = (width: number, side: 'before' | 'after') => {
+		if (!decoratorCache.has(`${width}-${side}`)) {
 			decoratorCache.set(
-				width,
+				`${width}-${side}`,
 				vscode.window.createTextEditorDecorationType({
 					after: {
 						contentText: ' ',
@@ -43,38 +43,56 @@ export function activate(context: vscode.ExtensionContext) {
 			);
 		}
 
-		return decoratorCache.get(width)!;
+		return decoratorCache.get(`${width}-${side}`)!;
 	};
 
 	function decorateEditor(editor: vscode.TextEditor) {
-		const decorations = new Map<number, vscode.Range[]>();
+		const decorations = new Map<
+			vscode.TextEditorDecorationType,
+			vscode.Range[]
+		>();
 		const text = editor.document.getText();
 
 		const alignments = aligner.computeAlignments(text);
 
 		for (const alignment of alignments) {
-			if (!decorations.has(alignment.width)) {
-				decorations.set(alignment.width, []);
+			let decorationType: vscode.TextEditorDecorationType;
+			let range: vscode.Range;
+
+			if (alignment.attach === 'before') {
+				decorationType = getDecoratorForWidth(alignment.width, 'after');
+				range = new vscode.Range(
+					alignment.line,
+					alignment.col - 1,
+					alignment.line,
+					alignment.col,
+				);
+			} else {
+				decorationType = getDecoratorForWidth(
+					alignment.width,
+					'before',
+				);
+				range = new vscode.Range(
+					alignment.line,
+					alignment.col,
+					alignment.line,
+					alignment.col + 1,
+				);
 			}
 
-			decorations
-				.get(alignment.width)!
-				.push(
-					new vscode.Range(
-						alignment.line,
-						alignment.col - 1,
-						alignment.line,
-						alignment.col,
-					),
-				);
+			if (!decorations.has(decorationType)) {
+				decorations.set(decorationType, []);
+			}
+
+			decorations.get(decorationType)!.push(range);
 		}
 
-		for (const [width, ranges] of decorations) {
-			editor.setDecorations(getDecoratorForWidth(width), ranges);
+		for (const [key, ranges] of decorations) {
+			editor.setDecorations(key, ranges);
 		}
 
-		for (const [width, decorator] of decoratorCache) {
-			if (!decorations.has(width)) {
+		for (const [, decorator] of decoratorCache) {
+			if (!decorations.has(decorator)) {
 				editor.setDecorations(decorator, []);
 			}
 		}
