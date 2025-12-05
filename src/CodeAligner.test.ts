@@ -1,12 +1,12 @@
 import * as assert from 'assert';
-import CodeAligner from './CodeAligner';
+import CodeAligner, { Alignment } from './CodeAligner';
 
 function performAlignment(input: string): string {
 	const codeAligner = new CodeAligner();
 
 	const alignments = codeAligner.computeAlignments(input);
 
-	return codeAligner.applyAlignmentsAsSpaces(input, alignments);
+	return CodeAligner.applyAlignmentsAsSpaces(input, alignments);
 }
 
 function debugPrint(input: string): string {
@@ -14,14 +14,46 @@ function debugPrint(input: string): string {
 
 	const alignments = codeAligner.computeAlignments(input);
 
-	const out = codeAligner.applyAlignmentsAsSpaces(input, alignments);
+	const out = CodeAligner.applyAlignmentsAsSpaces(input, alignments);
 
-	return codeAligner.debugPrintAlignments(out, alignments);
+	return CodeAligner.debugPrintAlignments(out, alignments);
 }
 
 suite('Alignment', () => {
 	test('CodeAligner constructs without error', () => {
 		new CodeAligner();
+	});
+
+	test('create correct alignment for postfix', () => {
+		const input = `\
+const foo = 1;
+const foobar = 2;
+`;
+
+		const expected: Alignment[] = [
+			{ line: 0, insertBeforeCol: 10, width: 3, attach: 'after' },
+		];
+
+		const aligner = new CodeAligner();
+		const output = aligner.computeAlignments(input);
+
+		assert.deepStrictEqual(output, expected);
+	});
+
+	test('create correct alignment for prefix', () => {
+		const input = `\
+const foo: 1;
+const foobar: 2;
+`;
+
+		const expected: Alignment[] = [
+			{ line: 0, insertBeforeCol: 10, width: 3, attach: 'before' },
+		];
+
+		const aligner = new CodeAligner();
+		const output = aligner.computeAlignments(input);
+
+		assert.deepStrictEqual(output, expected);
 	});
 
 	test('Align assignments', () => {
@@ -276,6 +308,57 @@ const obj = {
 		assert.strictEqual(output, expected);
 	});
 
+	test('debug print prints debug', () => {
+		const expected = `\
+01234   56789
+    |>>>
+01234  56789
+     <<|`;
+
+		const output = CodeAligner.debugPrintAlignments(
+			'01234   56789\n01234  56789',
+			[
+				{ line: 0, insertBeforeCol: 5, width: 3, attach: 'before' },
+				{ line: 1, insertBeforeCol: 5, width: 2, attach: 'after' },
+			],
+		);
+
+		assert.strictEqual(output, expected);
+	});
+
+	test('String rendering works', () => {
+		const input = `\
+0123456789
+0123456789
+`;
+		const expected = `\
+01234     56789
+01234     56789
+`;
+
+		const alignments: Alignment[] = [
+			{ line: 0, insertBeforeCol: 5, width: 5, attach: 'after' },
+			{ line: 1, insertBeforeCol: 5, width: 5, attach: 'before' },
+		];
+		const output = CodeAligner.applyAlignmentsAsSpaces(input, alignments);
+
+		assert.strictEqual(output, expected);
+
+		const debugOutput = CodeAligner.debugPrintAlignments(
+			output,
+			alignments,
+		);
+		const expectedDebug = `\
+01234     56789
+     <<<<<|
+01234     56789
+    |>>>>>
+
+`;
+
+		assert.strictEqual(debugOutput, expectedDebug);
+	});
+
 	test('Align assignments to the right', () => {
 		const input = `\
 const obj = {
@@ -332,7 +415,7 @@ const obj = {
 
 		const alignments = codeAligner.computeAlignments(input);
 
-		const output = codeAligner.applyAlignmentsAsSpaces(input, alignments);
+		const output = CodeAligner.applyAlignmentsAsSpaces(input, alignments);
 
 		assert.strictEqual(output, expected);
 	});
@@ -372,7 +455,7 @@ const foobar; # second value
 
 		const codeAligner = new CodeAligner({ lineCommentMarkers: ['#'] });
 		const alignments = codeAligner.computeAlignments(input);
-		const output = codeAligner.applyAlignmentsAsSpaces(input, alignments);
+		const output = CodeAligner.applyAlignmentsAsSpaces(input, alignments);
 
 		assert.strictEqual(output, expected);
 	});
@@ -392,7 +475,7 @@ const foobar; // second value
 			lineCommentMarkers: ['#', '//'],
 		});
 		const alignments = codeAligner.computeAlignments(input);
-		const output = codeAligner.applyAlignmentsAsSpaces(input, alignments);
+		const output = CodeAligner.applyAlignmentsAsSpaces(input, alignments);
 
 		assert.strictEqual(output, expected);
 	});
@@ -417,7 +500,7 @@ const foobar := 2;
 			],
 		});
 		const alignments = codeAligner.computeAlignments(input);
-		const output = codeAligner.applyAlignmentsAsSpaces(input, alignments);
+		const output = CodeAligner.applyAlignmentsAsSpaces(input, alignments);
 
 		assert.strictEqual(output, expected);
 	});
@@ -442,7 +525,7 @@ import { LongNamedThing } from 'module-b';
 			],
 		});
 		const alignments = codeAligner.computeAlignments(input);
-		const output = codeAligner.applyAlignmentsAsSpaces(input, alignments);
+		const output = CodeAligner.applyAlignmentsAsSpaces(input, alignments);
 		assert.strictEqual(output, expected);
 	});
 
@@ -472,7 +555,7 @@ const foobar = 2;
 			],
 		});
 		const alignments = codeAligner.computeAlignments(input);
-		const output = codeAligner.applyAlignmentsAsSpaces(input, alignments);
+		const output = CodeAligner.applyAlignmentsAsSpaces(input, alignments);
 		assert.strictEqual(output, expected);
 	});
 
@@ -507,7 +590,7 @@ const obj = {
 		});
 
 		const alignments = codeAligner.computeAlignments(input);
-		const output = codeAligner.applyAlignmentsAsSpaces(input, alignments);
+		const output = CodeAligner.applyAlignmentsAsSpaces(input, alignments);
 
 		assert.strictEqual(output, expected);
 	});
@@ -545,7 +628,7 @@ const obj = {
 		});
 
 		const alignments = codeAligner.computeAlignments(input);
-		const output = codeAligner.applyAlignmentsAsSpaces(input, alignments);
+		const output = CodeAligner.applyAlignmentsAsSpaces(input, alignments);
 
 		assert.strictEqual(output, expected);
 	});
@@ -582,7 +665,7 @@ param p4PublicIPName string = 'hxcorepip'
 		});
 
 		const alignments = codeAligner.computeAlignments(input);
-		const output = codeAligner.applyAlignmentsAsSpaces(input, alignments);
+		const output = CodeAligner.applyAlignmentsAsSpaces(input, alignments);
 
 		assert.strictEqual(output, expected);
 	});
@@ -620,7 +703,7 @@ param p4PublicIPName        string = 'hxcorepip'
 		});
 
 		const alignments = codeAligner.computeAlignments(input);
-		const output = codeAligner.applyAlignmentsAsSpaces(input, alignments);
+		const output = CodeAligner.applyAlignmentsAsSpaces(input, alignments);
 
 		assert.strictEqual(output, expected);
 	});
@@ -643,7 +726,7 @@ let bcd := 20;
 			],
 		});
 		const alignments = codeAligner.computeAlignments(input);
-		const output = codeAligner.applyAlignmentsAsSpaces(input, alignments);
+		const output = CodeAligner.applyAlignmentsAsSpaces(input, alignments);
 
 		assert.strictEqual(output, expected);
 	});
@@ -670,7 +753,7 @@ ____after__;
 			],
 		});
 		const alignments = codeAligner.computeAlignments(input);
-		const output = codeAligner.applyAlignmentsAsSpaces(input, alignments);
+		const output = CodeAligner.applyAlignmentsAsSpaces(input, alignments);
 
 		assert.strictEqual(output, expected);
 	});

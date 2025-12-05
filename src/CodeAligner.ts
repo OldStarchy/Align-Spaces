@@ -2,7 +2,7 @@ import TabPoint, { TabPointCollection } from './TabPoint';
 
 export type Alignment = {
 	line: number;
-	col: number;
+	insertBeforeCol: number;
 	width: number;
 	attach: 'before' | 'after';
 };
@@ -320,17 +320,22 @@ class CodeAligner {
 			.resolve()
 			.entries()
 			.flatMap(([line, decors]) => {
-				return decors.map((decoration) => ({
-					line,
-					col: decoration.col,
-					width: decoration.width,
-					attach: decoration.attach,
-				}));
+				return decors.map(
+					(decoration): Alignment => ({
+						line,
+						insertBeforeCol: decoration.col,
+						width: decoration.width,
+						attach: decoration.attach,
+					}),
+				);
 			})
 			.toArray();
 	}
 
-	applyAlignmentsAsSpaces(input: string, alignments: Alignment[]): string {
+	static applyAlignmentsAsSpaces(
+		input: string,
+		alignments: Alignment[],
+	): string {
 		const lines = input.split('\n');
 
 		const newLines = lines.map((line, index) => {
@@ -342,22 +347,24 @@ class CodeAligner {
 				return line;
 			}
 
-			lineDecorations.sort((a, b) => b.col - a.col);
+			lineDecorations.sort(
+				(a, b) => b.insertBeforeCol - a.insertBeforeCol,
+			);
 
 			let end = line.length;
 			let parts: string[] = [];
 			for (const decoration of lineDecorations) {
-				if (decoration.col > end) {
+				if (decoration.insertBeforeCol > end) {
 					throw new Error(
 						'Decoration column is after end of line, this should not happen',
 					);
 				}
 
-				if (decoration.col === end) {
+				if (decoration.insertBeforeCol === end) {
 					continue;
 				}
 
-				const col = decoration.col;
+				const col = decoration.insertBeforeCol;
 
 				const segment = line.substring(col, end);
 				parts.unshift(segment);
@@ -376,7 +383,10 @@ class CodeAligner {
 		return newLines.join('\n');
 	}
 
-	debugPrintAlignments(input: string, alignments: Alignment[]): string {
+	static debugPrintAlignments(
+		input: string,
+		alignments: Alignment[],
+	): string {
 		const out: string[] = [];
 
 		const lines = input.split('\n');
@@ -396,18 +406,18 @@ class CodeAligner {
 			let markerLine = '';
 
 			for (const decoration of lineDecorations) {
-				const col = decoration.col;
+				const col = decoration.insertBeforeCol;
 				const width = decoration.width;
 				const attach = decoration.attach;
 
-				if (col > markerLine.length) {
-					markerLine += ' '.repeat(col - markerLine.length);
+				if (col > markerLine.length - 1) {
+					markerLine += ' '.repeat(col - markerLine.length - 1);
 				}
 
 				if (attach === 'before') {
 					markerLine += '|' + '>'.repeat(width);
 				} else {
-					markerLine += '<'.repeat(width) + '|';
+					markerLine += ' ' + '<'.repeat(width) + '|';
 				}
 			}
 			out.push(markerLine);

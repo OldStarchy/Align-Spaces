@@ -35,7 +35,7 @@ export function activate(context: vscode.ExtensionContext) {
 			decoratorCache.set(
 				`${width}-${side}`,
 				vscode.window.createTextEditorDecorationType({
-					after: {
+					[side === 'after' ? 'before' : 'after']: {
 						contentText: ' ',
 						width: `${width}ch`,
 					},
@@ -63,9 +63,9 @@ export function activate(context: vscode.ExtensionContext) {
 				decorationType = getDecoratorForWidth(alignment.width, 'after');
 				range = new vscode.Range(
 					alignment.line,
-					alignment.col - 1,
+					alignment.insertBeforeCol,
 					alignment.line,
-					alignment.col,
+					alignment.insertBeforeCol + 1,
 				);
 			} else {
 				decorationType = getDecoratorForWidth(
@@ -74,9 +74,9 @@ export function activate(context: vscode.ExtensionContext) {
 				);
 				range = new vscode.Range(
 					alignment.line,
-					alignment.col,
+					alignment.insertBeforeCol - 1,
 					alignment.line,
-					alignment.col + 1,
+					alignment.insertBeforeCol,
 				);
 			}
 
