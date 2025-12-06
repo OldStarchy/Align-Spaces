@@ -24,10 +24,33 @@ type AssignmentMarkerDefinition =
 	  }
 	| {
 			regex: RegExp;
-			group: number;
+			group?: number;
 			mode: 'before' | 'after';
 			identifier?: string;
 	  };
+
+export interface CodeAlignerConfig {
+	/**
+	 * Strings that indicate the start of a line comment
+	 */
+	lineCommentMarkers?: string[];
+	/**
+	 * Definitions for assignment markers, e.g. "=", ":"
+	 */
+	assignmentMarkers?: AssignmentMarkerDefinition[];
+	/**
+	 * Lines matching this regex will be analyzed like normal, but no adjustments will be made to it
+	 */
+	dontAdjustLineRegex?: RegExp | null;
+	/**
+	 * Lines matching this regex will be completely skipped from analysis
+	 */
+	skipLinesRegex?: RegExp | null;
+	/**
+	 * Pairs of strings that indicate the start and end of recursive groups
+	 */
+	recursiveGroupMarkers?: { open: string; close: string }[];
+}
 
 class CodeAligner {
 	private lineCommentMarkers: string[];
@@ -49,28 +72,7 @@ class CodeAligner {
 		dontAdjustLineRegex = null,
 		skipLinesRegex = null,
 		recursiveGroupMarkers = CodeAligner.defaultRecursiveGroupMarkers,
-	}: {
-		/**
-		 * Strings that indicate the start of a line comment
-		 */
-		lineCommentMarkers?: string[];
-		/**
-		 * Definitions for assignment markers, e.g. "=", ":"
-		 */
-		assignmentMarkers?: AssignmentMarkerDefinition[];
-		/**
-		 * Lines matching this regex will be analyzed like normal, but no adjustments will be made to it
-		 */
-		dontAdjustLineRegex?: RegExp | null;
-		/**
-		 * Lines matching this regex will be completely skipped from analysis
-		 */
-		skipLinesRegex?: RegExp | null;
-		/**
-		 * Pairs of strings that indicate the start and end of recursive groups
-		 */
-		recursiveGroupMarkers?: { open: string; close: string }[];
-	} = {}) {
+	}: CodeAlignerConfig = {}) {
 		this.lineCommentMarkers = lineCommentMarkers;
 		this.assignmentMarkers = assignmentMarkers;
 		this.dontAdjustLineRegex = dontAdjustLineRegex;
@@ -120,7 +122,7 @@ class CodeAligner {
 				mod = mode;
 				ident = id;
 			} else {
-				const { regex, group, mode, identifier: id } = def;
+				const { regex, group = 0, mode, identifier: id } = def;
 				const match = line.match(regex);
 				if (!match || !match[group]) {
 					return;

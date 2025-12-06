@@ -670,6 +670,84 @@ param p4PublicIPName string = 'hxcorepip'
 		assert.strictEqual(output, expected);
 	});
 
+	test.skip('The other example from dciborow', () => {
+		const input = `\
+// Aligns parameters:
+param location string
+param name string = uniqueString(resourceGroup().id)
+param resourceGroupName string = resourceGroup().name
+param subnetID string = ''
+param enableVNET bool = false
+param isZoneRedundant bool = false
+param storageAccountType string = isZoneRedundant ? 'Standard_ZRS' : 'Standard_LRS'
+
+// Aligns Nested Values
+
+var networkAcls = enableVNET ? {
+  defaultAction: 'Deny'
+  virtualNetworkRules: [
+    {
+      action: 'Allow'
+      id: subnetID
+    }
+  ]
+} : {}
+
+// Format Output
+output id string = newOrExisting == 'new' ? newStorageAccount.id : storageAccount.id
+output blobStorageConnectionString string = blobStorageConnectionString
+`;
+
+		const expected = `\
+// Aligns parameters:
+param location           string
+param name               string = uniqueString(resourceGroup().id)
+param resourceGroupName  string = resourceGroup().name
+param subnetID           string = ''
+param enableVNET           bool = false
+param isZoneRedundant      bool = false
+param storageAccountType string = isZoneRedundant ? 'Standard_ZRS' : 'Standard_LRS'
+
+// Aligns Nested Values
+
+var networkAcls = enableVNET ? {
+  defaultAction      : 'Deny'
+  virtualNetworkRules: [
+    {
+      action: 'Allow'
+      id    : subnetID
+    }
+  ]
+} : {}
+
+// Format Output
+output id                          string = newOrExisting == 'new' ? newStorageAccount.id : storageAccount.id
+output blobStorageConnectionString string = blobStorageConnectionString
+`;
+
+		const codeAligner = new CodeAligner({
+			assignmentMarkers: [
+				{
+					regex: /\w+\s+\S+\s+(\S+(\s*=)?)/,
+					group: 1,
+					mode: 'before',
+					align: 'right',
+					identifier: 'param',
+				},
+				{
+					regex: /\S+(:)/,
+					group: 1,
+					mode: 'before',
+				},
+			],
+		});
+
+		const alignments = codeAligner.computeAlignments(input);
+		const output = CodeAligner.applyAlignmentsAsSpaces(input, alignments);
+
+		assert.strictEqual(output, expected);
+	});
+
 	test('Can ignore specific lines completely', () => {
 		const input = `\
 @description('VNET resource group name.')

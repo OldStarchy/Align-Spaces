@@ -24,10 +24,233 @@
   "contributes": {
     "commands": [
       {
-        "command": "align-spaces.helloWorld",
-        "title": "Hello World"
+        "command": "alignSpaces.showConfig",
+        "category": "Align Spaces",
+        "title": "Show Config"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Align Spaces",
+      "properties": {
+        "alignSpaces.lineCommentMarkers": {
+          "scope": "language-overridable",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Markers that indicate a line comment to be aligned."
+        },
+        "alignSpaces.assignmentMarkers": {
+          "scope": "language-overridable",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "oneOf": [
+              {
+                "type": "object",
+                "required": [
+                  "marker",
+                  "mode"
+                ],
+                "properties": {
+                  "marker": {
+                    "type": "string"
+                  },
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "before",
+                      "after"
+                    ]
+                  },
+                  "identifier": {
+                    "type": "string"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "required": [
+                  "regex",
+                  "mode"
+                ],
+                "properties": {
+                  "regex": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "pattern": {
+                            "type": "string"
+                          },
+                          "flags": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "pattern"
+                        ]
+                      }
+                    ]
+                  },
+                  "group": {
+                    "type": "integer",
+                    "description": "The capturing group to use for alignment. Defaults to 0 (the entire match)."
+                  },
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "before",
+                      "after"
+                    ]
+                  },
+                  "identifier": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          },
+          "description": "Markers that indicate an assignment to be aligned."
+        },
+        "alignSpaces.dontAdjustLineRegEx": {
+          "scope": "language-overridable",
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "pattern": {
+                  "type": "string"
+                },
+                "flags": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "pattern"
+              ]
+            }
+          ]
+        },
+        "alignSpaces.skipLinesRegex": {
+          "scope": "language-overridable",
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "pattern": {
+                  "type": "string"
+                },
+                "flags": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "pattern"
+              ]
+            }
+          ]
+        },
+        "alignSpaces.recursiveGroupMarkers": {
+          "scope": "language-overridable",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "open": {
+                "type": "string"
+              },
+              "close": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "open",
+              "close"
+            ]
+          }
+        }
+      }
+    },
+    "configurationDefaults": {
+      "[javascript]": {
+        "alignSpaces.lineCommentMarkers": [
+          "//"
+        ],
+        "alignSpaces.assignmentMarkers": [
+          {
+            "regex": "([+\\-*/% ]=)[^=]",
+            "group": 1,
+            "mode": "before",
+            "identifier": "assignment"
+          },
+          {
+            "regex": "[^ ]:(?!.*?=)",
+            "mode": "after",
+            "identifier": "object-colon"
+          },
+          {
+            "marker": "from",
+            "mode": "before"
+          }
+        ]
+      },
+      "[typescript]": {
+        "alignSpaces.lineCommentMarkers": [
+          "//"
+        ],
+        "alignSpaces.assignmentMarkers": [
+          {
+            "regex": "([+\\-*/% ]=)[^=]",
+            "group": 1,
+            "mode": "before",
+            "identifier": "assignment"
+          },
+          {
+            "regex": "[^ ]:(?!.*?=)",
+            "mode": "after",
+            "identifier": "object-colon"
+          },
+          {
+            "marker": "from",
+            "mode": "before"
+          }
+        ]
+      },
+      "[bicep]": {
+        "alignSpaces.lineCommentMarkers": [
+          "//"
+        ],
+        "alignSpaces.assignmentMarkers": [
+          {
+            "regex": "([+\\-*/% ]=)[^=]",
+            "group": 1,
+            "mode": "before",
+            "identifier": "assignment"
+          },
+          {
+            "regex": "[^ ]:(?!.*?=)",
+            "mode": "after",
+            "identifier": "object-colon"
+          },
+          {
+            "regex": "\\w+\\s+\\S+\\s+(string|int|bool)(\\s*=)?",
+            "group": 1,
+            "mode": "before",
+            "identifier": "param"
+          }
+        ]
+      }
+    }
   },
   "scripts": {
     "test": "yarn run test:unit && yarn run test:web",
