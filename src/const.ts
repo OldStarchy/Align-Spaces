@@ -1,2 +1,2 @@
-export const ExtensionSlug = 'alignSpaces';
+export const ExtensionSlug = 'align-spaces';
 export type ExtensionSlug = typeof ExtensionSlug;

@@ -22,17 +22,40 @@
   ],
   "browser": "./dist/web/extension.js",
   "contributes": {
+    "keybindings": [
+      {
+        "command": "align-spaces.toggleCurrentDocument",
+        "when": "editorFocus",
+        "key": "ctrl+shift+="
+      }
+    ],
     "commands": [
       {
-        "command": "alignSpaces.showConfig",
+        "command": "align-spaces.showConfig",
         "category": "Align Spaces",
         "title": "Show Config"
+      },
+      {
+        "command": "align-spaces.toggleCurrentDocument",
+        "category": "Align Spaces",
+        "title": "Enable/disable for Current Document"
       }
     ],
     "configuration": {
       "title": "Align Spaces",
       "properties": {
-        "alignSpaces.lineCommentMarkers": {
+        "align-spaces.enabled": {
+          "scope": "language-overridable",
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to automatically realign the document when it is edited."
+        },
+        "align-spaces.realignDelayMs": {
+          "type": "integer",
+          "default": 500,
+          "description": "The delay in milliseconds before realigning the document after an edit."
+        },
+        "align-spaces.lineCommentMarkers": {
           "scope": "language-overridable",
           "type": "array",
           "items": {
@@ -40,7 +63,7 @@
           },
           "description": "Markers that indicate a line comment to be aligned."
         },
-        "alignSpaces.assignmentMarkers": {
+        "align-spaces.assignmentMarkers": {
           "scope": "language-overridable",
           "type": "array",
           "items": {
@@ -114,9 +137,17 @@
               }
             ]
           },
+          "default": [
+            {
+              "regex": "([+\\-*/% ]=)[^=]",
+              "group": 1,
+              "mode": "before",
+              "identifier": "assignment"
+            }
+          ],
           "description": "Markers that indicate an assignment to be aligned."
         },
-        "alignSpaces.dontAdjustLineRegEx": {
+        "align-spaces.dontAdjustLineRegEx": {
           "scope": "language-overridable",
           "oneOf": [
             {
@@ -138,7 +169,7 @@
             }
           ]
         },
-        "alignSpaces.skipLinesRegex": {
+        "align-spaces.skipLinesRegex": {
           "scope": "language-overridable",
           "oneOf": [
             {
@@ -160,7 +191,7 @@
             }
           ]
         },
-        "alignSpaces.recursiveGroupMarkers": {
+        "align-spaces.recursiveGroupMarkers": {
           "scope": "language-overridable",
           "type": "array",
           "items": {
@@ -183,10 +214,10 @@
     },
     "configurationDefaults": {
       "[javascript]": {
-        "alignSpaces.lineCommentMarkers": [
+        "align-spaces.lineCommentMarkers": [
           "//"
         ],
-        "alignSpaces.assignmentMarkers": [
+        "align-spaces.assignmentMarkers": [
           {
             "regex": "([+\\-*/% ]=)[^=]",
             "group": 1,
@@ -194,7 +225,7 @@
             "identifier": "assignment"
           },
           {
-            "regex": "[^ ]:(?!.*?=)",
+            "regex": "[^ ]:(?!\\s*[\\w.]+\\s*=)",
             "mode": "after",
             "identifier": "object-colon"
           },
@@ -205,10 +236,10 @@
         ]
       },
       "[typescript]": {
-        "alignSpaces.lineCommentMarkers": [
+        "align-spaces.lineCommentMarkers": [
           "//"
         ],
-        "alignSpaces.assignmentMarkers": [
+        "align-spaces.assignmentMarkers": [
           {
             "regex": "([+\\-*/% ]=)[^=]",
             "group": 1,
@@ -216,7 +247,7 @@
             "identifier": "assignment"
           },
           {
-            "regex": "[^ ]:(?!.*?=)",
+            "regex": "[^ ]:(?!\\s*[\\w.]+\\s*=)",
             "mode": "after",
             "identifier": "object-colon"
           },
@@ -227,10 +258,10 @@
         ]
       },
       "[bicep]": {
-        "alignSpaces.lineCommentMarkers": [
+        "align-spaces.lineCommentMarkers": [
           "//"
         ],
-        "alignSpaces.assignmentMarkers": [
+        "align-spaces.assignmentMarkers": [
           {
             "regex": "([+\\-*/% ]=)[^=]",
             "group": 1,

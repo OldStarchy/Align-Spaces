@@ -13,7 +13,7 @@ const RegExConfig = {
 	},
 };
 
-type ExtensionConfig = {
+type ScopedConfig = {
 	lineCommentMarkers?: string[];
 	assignmentMarkers?: (
 		| {
@@ -31,44 +31,81 @@ type ExtensionConfig = {
 	dontAdjustLineRegex?: RegExConfig | null;
 	skipLinesRegex?: RegExConfig | null;
 	recursiveGroupMarkers?: { open: string; close: string }[];
+
+	enabled?: boolean;
 };
 
-const Config = {
-	load(scope?: vscode.ConfigurationScope): CodeAlignerConfig {
+type UnscopedConfig = {
+	realignDelayMs?: number;
+};
+
+type PerEditorSessionConfig = {
+	enabled: boolean;
+};
+
+const READ = Symbol('Config.delete');
+class Config {
+	static sessionConfigStore = new WeakMap<
+		vscode.TextEditor,
+		Partial<PerEditorSessionConfig>
+	>();
+
+	static getEnabledForEditor(editor: vscode.TextEditor) {
+		if (!Config.sessionConfigStore.has(editor)) {
+			return Config.getScoped(editor.document).enabled;
+		} else {
+			return Config.sessionConfigStore.get(editor)?.enabled ?? false;
+		}
+	}
+	static getUnscoped(): UnscopedConfig {
+		const config = vscode.workspace.getConfiguration(ExtensionSlug);
+
+		return {
+			realignDelayMs: config.realignDelayMs ?? 500,
+		};
+	}
+
+	static getScoped(scope?: vscode.ConfigurationScope): {
+		enabled: boolean;
+		alignerConfig: CodeAlignerConfig;
+	} {
 		const config = vscode.workspace.getConfiguration(
 			ExtensionSlug,
 			scope,
-		) as ExtensionConfig;
+		) as ScopedConfig;
 
 		return {
-			lineCommentMarkers: config.lineCommentMarkers || [],
-			assignmentMarkers: (config.assignmentMarkers || []).map(
-				(marker) => {
-					if ('marker' in marker) {
-						return {
-							marker: marker.marker,
-							mode: marker.mode,
-							identifier: marker.identifier,
-						};
-					} else {
-						return {
-							regex: RegExConfig.into(marker.regex),
-							group: marker.group,
-							mode: marker.mode,
-							identifier: marker.identifier,
-						};
-					}
-				},
-			),
-			dontAdjustLineRegex: config.dontAdjustLineRegex
-				? RegExConfig.into(config.dontAdjustLineRegex)
-				: null,
-			skipLinesRegex: config.skipLinesRegex
-				? RegExConfig.into(config.skipLinesRegex)
-				: null,
-			recursiveGroupMarkers: config.recursiveGroupMarkers || [],
+			enabled: config.enabled ?? true,
+			alignerConfig: {
+				lineCommentMarkers: config.lineCommentMarkers || [],
+				assignmentMarkers: (config.assignmentMarkers || []).map(
+					(marker) => {
+						if ('marker' in marker) {
+							return {
+								marker: marker.marker,
+								mode: marker.mode,
+								identifier: marker.identifier,
+							};
+						} else {
+							return {
+								regex: RegExConfig.into(marker.regex),
+								group: marker.group,
+								mode: marker.mode,
+								identifier: marker.identifier,
+							};
+						}
+					},
+				),
+				dontAdjustLineRegex: config.dontAdjustLineRegex
+					? RegExConfig.into(config.dontAdjustLineRegex)
+					: null,
+				skipLinesRegex: config.skipLinesRegex
+					? RegExConfig.into(config.skipLinesRegex)
+					: null,
+				recursiveGroupMarkers: config.recursiveGroupMarkers || [],
+			},
 		};
-	},
-};
+	}
+}
 
 export default Config;
